@@ -32,6 +32,8 @@ pip install -r requirements.txt
 
 eSpeak veya phonemizer kurulumu gerekmez; script yalnızca model çıktısını çözer.
 
+**Windows notu:** torch paketinin dosya yolları uzundur. Depo derin bir klasöre klonlanırsa kurulum `OSError: No such file or directory` hatasıyla durabilir. Depoyu kısa bir yola (ör. `C:\voxrecte`) klonlayın veya Windows'ta [uzun yol desteğini](https://pip.pypa.io/warnings/enable-long-paths) açın.
+
 ## Çalıştırma
 
 ```bash
