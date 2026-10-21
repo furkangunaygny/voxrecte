@@ -1,0 +1,36 @@
+{
+  "timestamp_utc": "2026-10-14T16:52:41+00:00",
+  "python": "3.13.7",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "packages": {
+    "torch": "2.14.1+cu130",
+    "torchaudio": "2.11.0+cu130",
+    "transformers": "5.19.0",
+    "accelerate": "1.15.0",
+    "datasets": "5.1.0",
+    "huggingface-hub": "2.2.0",
+    "tokenizers": "0.23.3",
+    "safetensors": "0.8.0",
+    "librosa": "1.0.0",
+    "soundfile": "0.14.0",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "pyarrow": "26.0.0"
+  },
+  "cuda": {
+    "torch_cuda_version": "13.0",
+    "cudnn_version": 92400,
+    "available": true,
+    "device": "NVIDIA GeForce RTX 4060 Laptop GPU"
+  },
+  "run_device": "cuda",
+  "model": {
+    "id": "facebook/wav2vec2-lv-60-espeak-cv-ft",
+    "revision": "ae45363bf3413b374fecd9dc8bc1df0e24c3b7f4"
+  },
+  "dataset": {
+    "id": "hf-internal-testing/librispeech_asr_dummy",
+    "file": "clean/validation-00000-of-00001.parquet",
+    "revision": "5be91486e11a2d616f4ec5db8d3fd248585ac07a"
+  }
+}
