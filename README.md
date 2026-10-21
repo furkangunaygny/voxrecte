@@ -5,9 +5,13 @@
 - **Model:** [`facebook/wav2vec2-lv-60-espeak-cv-ft`](https://huggingface.co/facebook/wav2vec2-lv-60-espeak-cv-ft) (CTC, eSpeak IPA fonemleri)
 - **Veri:** [`hf-internal-testing/librispeech_asr_dummy`](https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy) (LibriSpeech clean/validation, 16 kHz)
 
-## Kurulum
+## Gereksinimler
 
-Python 3.13 ile test edildi.
+- Python 3.13 (test edilen sürüm)
+- İnternet bağlantısı (model, veri seti ve revizyon bilgisi Hugging Face'ten alınır)
+- İsteğe bağlı: CUDA 13.0 destekleyen sürücüye sahip NVIDIA GPU; yoksa CPU'da çalışır
+
+## Kurulum
 
 ```bash
 python -m venv .venv
@@ -61,3 +65,7 @@ scripts/run_phoneme_baseline.py   ana script
 requirements.txt                  sabitlenmiş bağımlılıklar
 outputs/                          örnek çalıştırma çıktıları
 ```
+
+## Lisans
+
+Bu depodaki kod [MIT lisansı](LICENSE) ile sunulur. Kullanılan model ([Apache 2.0](https://huggingface.co/facebook/wav2vec2-lv-60-espeak-cv-ft)) ve LibriSpeech kayıtları ([CC BY 4.0](https://www.openslr.org/12)) kendi lisanslarına tabidir.
