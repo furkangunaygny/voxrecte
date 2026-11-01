@@ -1,66 +1,111 @@
-# Okutulacak cümlelerin seçimi
+# Adım 3 — Okutulacak cümlelerin seçimi
 
-Kaynak: speechocean762, 5000 kayıt → 4947 tekrarsız cümle (53 tekrar çıkarıldı). Aday havuzu: 4–10 kelimelik, elle çıkarılan 7 cümle hariç 4776 cümle.
-
-Fonemler veri setinin kendi referans transkripsiyonlarından (ARPAbet) alındı; vurgu rakamları sayım için atıldı ve CMU sözlüğünün 39 fonemi kaldı. Aynı cümlenin iki kaydında farklı transkripsiyon olan 29 cümlede bir fonem, yalnızca tüm transkripsiyonlarda geçtiği kadar sayıldı.
-
-Seçim açgözlü algoritmayla yapıldı: önce henüz kapsanmayan fonemler, ardından her fonemin en az 3 temel cümlede geçmesi, ardından seçimde az geçen ve veri setinde nadir olan fonemlere öncelik veren azalan getirili bir puan; eşitlikte daha kısa cümle. Yedek cümleler aynı yöntemle hedef 4 cümleye çıkarılarak seçildi.
+Teslim: cümle listesi, kaynak kayıt kimlikleri ve fonem kapsama tablosu. Bu rapor `scripts/select_sentences.py` tarafından üretilir; aynı veriyle her çalıştırmada aynı sonucu verir.
 
 ## Özet
 
-- Temel 20 cümle 39 fonemin **39**'unu kapsıyor.
-- En az geçen fonem: **OY**, 3 temel cümlede.
-- Her fonem en az 3 temel cümlede, yedeklerle birlikte en az 4 cümlede geçiyor.
-- Temel set: 629 fonem, 182 kelime.
-- Pilot (5 temel cümle): 39 fonemin 39'unu kapsıyor.
+- speechocean762'deki 5000 kayıttan **4947 tekrarsız cümle** çıkarıldı.
+- **20 temel + 5 yedek cümle** algoritmik olarak seçildi. Temel cümleler 39 İngilizce fonemin **39**'unu kapsıyor.
+- Her fonem en az **3 temel cümlede** geçiyor (yedeklerle en az 4). Bu nedenle tek bir temel cümle okunamazsa kapsam düşmez. En az geçen fonem: OY.
+- Pilot kayıtlar (Adım 8: 5 kişi × 5 cümle) için seçilen **5 temel cümle** 39 fonemin 39'unu kapsıyor. Temel set toplam 182 kelime ve 629 fonemden oluşuyor.
 
-## Cümleler
+## 1. Cümle listesi
 
-| # | Rol | Pilot | Cümle | Kelime | Yeni kapsanan fonemler | Kaynak kayıtlar | Ort. total puanı |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | temel | 1 | AMERICA'S GOING THROUGH JUST ABOUT THE SAME EXPERIENCE AS MYSELF | 10 | AE AH AW AY B DH EH EY F G IH JH K L M N NG OW P R S T TH UW Z | 090880095 (test) | 8.0 |
-| 2 | temel | 2 | DO YOU HAVE ANY QUESTIONS FOR HER | 7 | AO CH D ER HH IY UH V W Y | 012930139 (test) | 8.0 |
-| 3 | temel | 3 | HOWEVER MARKET CONDITIONS HAVE LEFT US WITH NO OTHER CHOICE | 10 | AA OY SH | 007650036 (test) | 6.0 |
-| 4 | temel | 4 | THERE'S NOTHING THAT UNUSUAL ABOUT THE STRUCTURE OF THE PLAN | 10 | ZH | 022360321 (train) | 7.0 |
-| 5 | temel |  | THEY WERE PROBABLY DATING OR SOMETHING HE SHRUGGED | 8 | — | 096470012 (test) | 3.0 |
-| 6 | temel |  | HE SHOULD HAVE LET THE ORGANIZATION AND THE MANAGER KNOW | 10 | — | 023800114 (train) | 8.0 |
-| 7 | temel |  | I JUST WANT TO SEE HER SAFE IN YOUR HANDS | 10 | — | 096180018 (test) | 6.0 |
-| 8 | temel |  | THIS IS NOT AN ARGUMENT FOR BUSINESS AS USUAL | 9 | — | 029370106 (test) | 8.0 |
-| 9 | temel |  | SO ENJOY AND TELL ME WHAT YOU THINK OF IT | 10 | — | 096250021 (train) | 3.0 |
-| 10 | temel |  | BUT THAT WOULD NOT ALONE EXPLAIN HIS PLEASURE | 8 | — | 095530066 (test) | 8.0 |
-| 11 | temel |  | YOUR SECOND SHOT WILL BE A CHOICE OF TWO OPTIONS | 10 | — | 004820114 (train) | 8.0 |
-| 12 | temel |  | THE MOST POWERFUL THING YOU CAN DO IS RECOVER | 9 | — | 023550201 (test) | 9.0 |
-| 13 | temel | 5 | YET WHY THERE SHOULD BE NOTHING IS HARD TO SAY | 10 | — | 081530100 (test) | 8.0 |
-| 14 | temel |  | YOU HAVE TO CHANGE WITH THEM OR BE LEFT BEHIND | 10 | — | 096080027 (test) | 4.0 |
-| 15 | temel |  | I SHALL NEVER FORGIVE MYSELF FOR THIS EXPOSURE | 8 | — | 004820378 (train) | 8.0 |
-| 16 | temel |  | YOU HAVE DONE THAT WHICH MUST MAKE A FATHER ANGRY | 10 | — | 054080081 (train) | 8.0 |
-| 17 | temel |  | THE SOLDIER STARED INTO SPACE MIND RACING FURIOUSLY | 8 | — | 096450011 (train) | 4.0 |
-| 18 | temel |  | SHE OPENED THE DOOR AND LOOKED AROUND THE BATHROOM | 9 | — | 096000018 (train) | 5.0 |
-| 19 | temel |  | BOTH GIRLS CALLED OUT AS THEY WATCHED HER LEAVE | 9 | — | 096470005 (test) | 4.0 |
-| 20 | temel |  | HER EYES USUALLY SO GENTLE FLASHED FIRE | 7 | — | 096400016 (test) | 4.0 |
-| 21 | yedek |  | THANKS FOR THE JOY OF OWNERSHIP | 6 | — | 020590121 (train) | 8.0 |
-| 22 | yedek |  | COME IT WOULD GIVE ME SO MUCH PLEASURE | 8 | — | 091010151 (test) | 9.0 |
-| 23 | yedek |  | I AM RICH AND SO WAS MY FATHER BEFORE ME | 10 | — | 096040023 (train) | 4.0 |
-| 24 | yedek |  | I THINK THE SHAKING HURT HIS FEELINGS VERY MUCH | 9 | — | 052180112 (train) | 8.0 |
-| 25 | yedek |  | ANGER IS SOMETHING THAT CAN BE REALLY HARD TO CONTROL | 10 | — | 023550230 (test) | 9.0 |
+| # | Rol | Pilot sırası | Cümle | Kelime | Fonem | Farklı fonem |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | temel | 1 | AMERICA'S GOING THROUGH JUST ABOUT THE SAME EXPERIENCE AS MYSELF | 10 | 46 | 25 |
+| 2 | temel | 2 | DO YOU HAVE ANY QUESTIONS FOR HER | 7 | 22 | 19 |
+| 3 | temel | 3 | HOWEVER MARKET CONDITIONS HAVE LEFT US WITH NO OTHER CHOICE | 10 | 38 | 24 |
+| 4 | temel | 4 | THERE'S NOTHING THAT UNUSUAL ABOUT THE STRUCTURE OF THE PLAN | 10 | 40 | 22 |
+| 5 | temel |  | THEY WERE PROBABLY DATING OR SOMETHING HE SHRUGGED | 8 | 30 | 21 |
+| 6 | temel |  | HE SHOULD HAVE LET THE ORGANIZATION AND THE MANAGER KNOW | 10 | 35 | 22 |
+| 7 | temel |  | I JUST WANT TO SEE HER SAFE IN YOUR HANDS | 10 | 30 | 20 |
+| 8 | temel |  | THIS IS NOT AN ARGUMENT FOR BUSINESS AS USUAL | 9 | 33 | 18 |
+| 9 | temel |  | SO ENJOY AND TELL ME WHAT YOU THINK OF IT | 10 | 27 | 21 |
+| 10 | temel |  | BUT THAT WOULD NOT ALONE EXPLAIN HIS PLEASURE | 8 | 31 | 21 |
+| 11 | temel |  | YOUR SECOND SHOT WILL BE A CHOICE OF TWO OPTIONS | 10 | 29 | 21 |
+| 12 | temel |  | THE MOST POWERFUL THING YOU CAN DO IS RECOVER | 9 | 29 | 24 |
+| 13 | temel | 5 | YET WHY THERE SHOULD BE NOTHING IS HARD TO SAY | 10 | 28 | 23 |
+| 14 | temel |  | YOU HAVE TO CHANGE WITH THEM OR BE LEFT BEHIND | 10 | 30 | 23 |
+| 15 | temel |  | I SHALL NEVER FORGIVE MYSELF FOR THIS EXPOSURE | 8 | 31 | 19 |
+| 16 | temel |  | YOU HAVE DONE THAT WHICH MUST MAKE A FATHER ANGRY | 10 | 31 | 23 |
+| 17 | temel |  | THE SOLDIER STARED INTO SPACE MIND RACING FURIOUSLY | 8 | 38 | 23 |
+| 18 | temel |  | SHE OPENED THE DOOR AND LOOKED AROUND THE BATHROOM | 9 | 30 | 21 |
+| 19 | temel |  | BOTH GIRLS CALLED OUT AS THEY WATCHED HER LEAVE | 9 | 26 | 21 |
+| 20 | temel |  | HER EYES USUALLY SO GENTLE FLASHED FIRE | 7 | 25 | 19 |
+| 21 | yedek |  | THANKS FOR THE JOY OF OWNERSHIP | 6 | 19 | 17 |
+| 22 | yedek |  | COME IT WOULD GIVE ME SO MUCH PLEASURE | 8 | 23 | 19 |
+| 23 | yedek |  | I AM RICH AND SO WAS MY FATHER BEFORE ME | 10 | 27 | 22 |
+| 24 | yedek |  | I THINK THE SHAKING HURT HIS FEELINGS VERY MUCH | 9 | 31 | 22 |
+| 25 | yedek |  | ANGER IS SOMETHING THAT CAN BE REALLY HARD TO CONTROL | 10 | 38 | 23 |
 
-## Elle çıkarılan cümleler
+<details><summary>Cümlelerin referans fonemleri (ARPAbet, vurgu rakamları atılmış; · kelime sınırı)</summary>
 
-Cümleler çalışma katılımcılarına okutulacağı için dilbilgisi bozuk ya da hassas içerikli (şiddet, ölüm, siyaset) olanlar `resources/excluded_sentences.csv` listesiyle aday havuzundan çıkarıldı.
+| # | Cümle | Fonemler |
+| --- | --- | --- |
+| 1 | AMERICA'S GOING THROUGH JUST ABOUT THE SAME EXPERIENCE AS MYSELF | AH M EH R IH K AH S · G OW IH NG · TH R UW · JH AH S T · AH B AW T · DH AH · S EY M · IH K S P IH AH IH AH N S · AE Z · M AY S EH L F |
+| 2 | DO YOU HAVE ANY QUESTIONS FOR HER | D UH · Y UW · HH AE V · EH N IY · K W EH S CH AH N Z · F AO · HH ER |
+| 3 | HOWEVER MARKET CONDITIONS HAVE LEFT US WITH NO OTHER CHOICE | HH AW EH V ER · M AA K IH T · K AH N D IH SH N Z · HH AE V · L EH F T · AH S · W IH DH · N OW · AH DH ER · CH OY S |
+| 4 | THERE'S NOTHING THAT UNUSUAL ABOUT THE STRUCTURE OF THE PLAN | DH EH R Z · N AH TH IH NG · DH AE T · AH N Y UW ZH AH L · AH B AW T · DH AH · S T R AH K CH AH · AH V · DH AH · P L AE N |
+| 5 | THEY WERE PROBABLY DATING OR SOMETHING HE SHRUGGED | DH EY · W ER · P R AH B AH B L IY · D EY T IH NG · AO · S AH M TH IH NG · HH IY · SH R AH G |
+| 6 | HE SHOULD HAVE LET THE ORGANIZATION AND THE MANAGER KNOW | HH IY · SH UH D · HH AE V · L EH T · DH AH · AO G AH N AY Z EY SH N · AE N D · DH AH · M AE N IH JH AH · N OW |
+| 7 | I JUST WANT TO SEE HER SAFE IN YOUR HANDS | AY · JH AH S T · W AA N T · T UW · S IY · HH ER · S EY F · IH N · Y UH AH · HH AE N D Z AA N |
+| 8 | THIS IS NOT AN ARGUMENT FOR BUSINESS AS USUAL | DH IH S · IH Z · N AH T · AE N · AA G Y UW M AH N T · F AO · B IH Z N AH S · AE Z · Y UW ZH AH L |
+| 9 | SO ENJOY AND TELL ME WHAT YOU THINK OF IT | S OW · IH N JH OY · AE N D · T EH L · M IY · W AH T · Y UW · TH IH NG K · AH V · IH T |
+| 10 | BUT THAT WOULD NOT ALONE EXPLAIN HIS PLEASURE | B AH T · DH AE T · W UH D · N AH T · AH L OW N · IH K S P L EY N · HH IH Z · P L EH ZH ER |
+| 11 | YOUR SECOND SHOT WILL BE A CHOICE OF TWO OPTIONS | Y AO · S EH K AH N D · SH AH T · W IH L · B IY · AH · CH OY S · AH V · T UW · AH P SH N Z |
+| 12 | THE MOST POWERFUL THING YOU CAN DO IS RECOVER | DH AH · M OW S T · P AW AH F L · TH IH NG · Y UW · K AE N · D UH · IH Z · R IH K AH V ER |
+| 13 | YET WHY THERE SHOULD BE NOTHING IS HARD TO SAY | Y EH T · W AY · DH EH R · SH UH D · B IY · N AH TH IH NG · IH Z · HH AA R D · T UW · S EY |
+| 14 | YOU HAVE TO CHANGE WITH THEM OR BE LEFT BEHIND | Y UW · HH AE V · T UW · CH EY N JH · W IH TH · DH EH M · AO · B IY · L EH F T · B IH HH AY N D |
+| 15 | I SHALL NEVER FORGIVE MYSELF FOR THIS EXPOSURE | AY · SH AH L · N EH V ER · F AH G IH V · M AY S EH L F · F AO · DH IH S · IH K S P OW ZH AH |
+| 16 | YOU HAVE DONE THAT WHICH MUST MAKE A FATHER ANGRY | Y UW · HH AE V · D AH N · DH AE T · W IH CH · M AH S T · M EY K · AH · F AA DH AH · AE NG G R IY |
+| 17 | THE SOLDIER STARED INTO SPACE MIND RACING FURIOUSLY | DH AH · S OW L JH ER · S T EH ER D · IH N T UW · S P EY S · M AY N D · R EY S IH NG · F Y UH ER IH AH S L IY |
+| 18 | SHE OPENED THE DOOR AND LOOKED AROUND THE BATHROOM | SH IY · OW P AH N · DH AH · D AO · AE N D · L UH K T · AH R AW N D · DH AH · B AA TH R UW M |
+| 19 | BOTH GIRLS CALLED OUT AS THEY WATCHED HER LEAVE | B OW TH · G ER L Z · K AO L D · AW T · AE Z · DH EY · W AH CH T · HH ER · L IY V |
+| 20 | HER EYES USUALLY SO GENTLE FLASHED FIRE | HH ER · AY Z · Y UW ZH AH L IY · S OW · JH EH N T L · F L AE SH T · F AY AH |
+| 21 | THANKS FOR THE JOY OF OWNERSHIP | TH AE NG K S · F AO · DH AH · JH OY · AH V · OW N AH SH IH P |
+| 22 | COME IT WOULD GIVE ME SO MUCH PLEASURE | K AH M · IH T · W UH D · G IH V · M IY · S OW · M AH CH · P L EH ZH ER |
+| 23 | I AM RICH AND SO WAS MY FATHER BEFORE ME | AY · EY EH M · R IH CH · AE N D · S OW · W AH Z · M AY · F AA DH ER · B IH F AO · M IY |
+| 24 | I THINK THE SHAKING HURT HIS FEELINGS VERY MUCH | AY · TH IH NG K · DH AH · SH EY K IH NG · HH ER T · HH IH Z · F IY L IY NG S · V EH R IY · M AH CH |
+| 25 | ANGER IS SOMETHING THAT CAN BE REALLY HARD TO CONTROL | AE NG G ER · IH Z · S AH M TH IH NG · DH AE T · K AE N · B IY · R IH AH L IY · HH AA R D · T UW · K AH N T R OW L |
 
-| Cümle | Gerekçe |
-| --- | --- |
-| HE CALLED FOR EDUCATION CAMPAIGN TARGETING THE ISSUE OF WEAPONS | dilbilgisi: tanımlık eksik (an education campaign); silah konusu |
-| NEARLY ALL REPUBLICANS VOTED AGAINST THE MEASURE | siyasi içerik |
-| GUNS WERE USED FOR ABOUT THREE OF EVERY FIVE KILLINGS | şiddet içeriği |
-| TAKE HERE AND NO SMALL PART SHOULD BE THEIR | anlamsız/bozuk cümle |
-| DEATH SHOULD BE VEILED THE GRAVE SHOULD HAVE ITS RESERVE | ölüm konusu; eski edebi dil |
-| TINA LIFE IN NEW USUAL | anlamsız/bozuk cümle |
-| THIS ELECTION IS GOING TO BE A TURNING POINT | siyasi içerik (seçim) |
+</details>
 
-## Fonem kapsama tablosu
+## 2. Kaynak kayıt kimlikleri
 
-Sıralama: tüm veri setindeki sıklık. Oranlar fonem sayısına göre; "cümle" sütunları fonemin kaç cümlede geçtiğini gösterir.
+Her cümlenin speechocean762'de hangi kayıtta geçtiği. Kaynak kayıtlar anadili Mandarin olan konuşmacılara aittir; yalnızca cümlenin kaynağını ve referans transkripsiyonunu belirtir.
+
+| # | Rol | Cümle | Kayıt kimliği (utt_id) | Bölüm | Konuşmacı (cinsiyet, yaş, grup) | Uzman total puanı |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | temel | AMERICA'S GOING THROUGH JUST ABOUT THE SAME EXPERIENCE AS MYSELF | 090880095 | test | 9088 (f, 15, child) | 8 |
+| 2 | temel | DO YOU HAVE ANY QUESTIONS FOR HER | 012930139 | test | 1293 (m, 32, adult) | 8 |
+| 3 | temel | HOWEVER MARKET CONDITIONS HAVE LEFT US WITH NO OTHER CHOICE | 007650036 | test | 0765 (m, 20, adult) | 6 |
+| 4 | temel | THERE'S NOTHING THAT UNUSUAL ABOUT THE STRUCTURE OF THE PLAN | 022360321 | train | 2236 (m, 22, adult) | 7 |
+| 5 | temel | THEY WERE PROBABLY DATING OR SOMETHING HE SHRUGGED | 096470012 | test | 9647 (f, 20, adult) | 3 |
+| 6 | temel | HE SHOULD HAVE LET THE ORGANIZATION AND THE MANAGER KNOW | 023800114 | train | 2380 (f, 21, adult) | 8 |
+| 7 | temel | I JUST WANT TO SEE HER SAFE IN YOUR HANDS | 096180018 | test | 9618 (f, 24, adult) | 6 |
+| 8 | temel | THIS IS NOT AN ARGUMENT FOR BUSINESS AS USUAL | 029370106 | test | 2937 (m, 19, adult) | 8 |
+| 9 | temel | SO ENJOY AND TELL ME WHAT YOU THINK OF IT | 096250021 | train | 9625 (f, 25, adult) | 3 |
+| 10 | temel | BUT THAT WOULD NOT ALONE EXPLAIN HIS PLEASURE | 095530066 | test | 9553 (f, 15, child) | 8 |
+| 11 | temel | YOUR SECOND SHOT WILL BE A CHOICE OF TWO OPTIONS | 004820114 | train | 0482 (m, 28, adult) | 8 |
+| 12 | temel | THE MOST POWERFUL THING YOU CAN DO IS RECOVER | 023550201 | test | 2355 (m, 20, adult) | 9 |
+| 13 | temel | YET WHY THERE SHOULD BE NOTHING IS HARD TO SAY | 081530100 | test | 8153 (f, 14, child) | 8 |
+| 14 | temel | YOU HAVE TO CHANGE WITH THEM OR BE LEFT BEHIND | 096080027 | test | 9608 (f, 30, adult) | 4 |
+| 15 | temel | I SHALL NEVER FORGIVE MYSELF FOR THIS EXPOSURE | 004820378 | train | 0482 (m, 28, adult) | 8 |
+| 16 | temel | YOU HAVE DONE THAT WHICH MUST MAKE A FATHER ANGRY | 054080081 | train | 5408 (m, 11, child) | 8 |
+| 17 | temel | THE SOLDIER STARED INTO SPACE MIND RACING FURIOUSLY | 096450011 | train | 9645 (f, 20, adult) | 4 |
+| 18 | temel | SHE OPENED THE DOOR AND LOOKED AROUND THE BATHROOM | 096000018 | train | 9600 (f, 28, adult) | 5 |
+| 19 | temel | BOTH GIRLS CALLED OUT AS THEY WATCHED HER LEAVE | 096470005 | test | 9647 (f, 20, adult) | 4 |
+| 20 | temel | HER EYES USUALLY SO GENTLE FLASHED FIRE | 096400016 | test | 9640 (f, 29, adult) | 4 |
+| 21 | yedek | THANKS FOR THE JOY OF OWNERSHIP | 020590121 | train | 2059 (f, 21, adult) | 8 |
+| 22 | yedek | COME IT WOULD GIVE ME SO MUCH PLEASURE | 091010151 | test | 9101 (f, 15, child) | 9 |
+| 23 | yedek | I AM RICH AND SO WAS MY FATHER BEFORE ME | 096040023 | train | 9604 (f, 21, adult) | 4 |
+| 24 | yedek | I THINK THE SHAKING HURT HIS FEELINGS VERY MUCH | 052180112 | train | 5218 (f, 12, child) | 8 |
+| 25 | yedek | ANGER IS SOMETHING THAT CAN BE REALLY HARD TO CONTROL | 023550230 | test | 2355 (m, 20, adult) | 9 |
+
+## 3. Fonem kapsama tablosu
+
+Satırlar fonemin tüm veri setindeki sıklığına göre sıralıdır. "Adet" ve "%" fonem sayısını, "cümle" sütunları fonemin kaç farklı cümlede geçtiğini gösterir. Son sütun, fonemin geçtiği cümlelerin 1. tablodaki numaralarıdır.
 
 | Fonem | Tür | Veri seti (adet) | Veri seti % | Temel (adet) | Temel % | Temel cümle | Temel+yedek cümle | Geçtiği cümleler (#) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -104,6 +149,39 @@ Sıralama: tüm veri setindeki sıklık. Oranlar fonem sayısına göre; "cümle
 | OY | ünlü | 56 | 0.06 | 3 | 0.48 | 3 | 4 | 3 9 11 21 |
 | ZH | ünsüz | 23 | 0.02 | 5 | 0.79 | 5 | 6 | 4 8 10 15 20 22 |
 
-## Not: referans aksan
+### Fonem dağılımı
 
-Referans transkripsiyonlar kayıt bazında yazılmış ve tek bir aksana bağlı değil. Örneğin "FOR" 278 kayıtta `F AO` (r'siz, İngiliz), 40 kayıtta `F AO R` (Amerikan) olarak geçiyor. Bu nedenle özellikle R ve ER fonemlerinin sayıları, cümleyi okuyacak kişinin aksanına göre değişebilir.
+- Temel setteki fonem oranları veri setindeki oranlarla büyük ölçüde örtüşüyor (Pearson r = 0.93).
+- Ünlü payı: veri setinde %40.0, temel sette %39.7.
+- Veri setine göre en çok öne çıkarılan fonemler (nadir sesler, bilinçli olarak): ZH (%0.02 → %0.79), OY (%0.06 → %0.48), CH (%0.37 → %1.11), JH (%0.39 → %1.11), SH (%0.74 → %1.59).
+- En çok geri kalan fonemler (sık sesler, yine de birçok cümlede var): W (%3.34 → %1.75), IY (%3.93 → %2.23), AY (%2.62 → %1.59), T (%8.45 → %5.72), M (%3.15 → %2.38).
+
+## Yöntem
+
+1. **Tekrarların çıkarılması:** Cümleler büyük harfe çevrilip noktalama silinerek karşılaştırıldı; 53 tekrar çıkarıldı.
+2. **Fonemlerin belirlenmesi:** Veri setinin kendi referans transkripsiyonları (`resource/scores.json`, ARPAbet) kullanıldı; phonemizer/eSpeak kurulumu gerekmedi. Vurgu rakamları sayım için atıldı ve CMU sözlüğünün 39 fonemi kaldı. İki kaydında farklı transkripsiyon bulunan 29 cümlede bir fonem, yalnızca tüm transkripsiyonlarda geçtiği kadar sayıldı.
+3. **Aday havuzu:** 4–10 kelimelik cümleler; elle çıkarılan 7 cümle hariç 4776 aday.
+4. **Açgözlü seçim:** Her adımda şu sırayla en iyi cümle eklendi: (a) henüz kapsanmamış fonem sayısı, (b) her fonemin en az 3 temel cümlede geçmesine katkı, (c) seçimde az geçen ve veri setinde nadir olan fonemlere öncelik veren azalan getirili puan, (d) eşitlikte daha kısa cümle.
+5. **Yedekler:** Aynı yöntemle, hedef fonem başına 4 cümleye çıkarılarak seçildi.
+6. **Pilot alt kümesi:** Temel cümleler arasından aynı yöntemle en çok fonemi kapsayan 5 cümle.
+
+## Elle çıkarılan cümleler
+
+Cümleler Türk katılımcılara okutulacağı için (Adım 8), algoritmanın seçtiği cümleler tek tek okundu. Dilbilgisi bozuk ya da hassas içerikli (şiddet, ölüm, siyaset) olanlar `resources/excluded_sentences.csv` listesine eklenip seçim yeniden çalıştırıldı.
+
+| Cümle | Gerekçe |
+| --- | --- |
+| HE CALLED FOR EDUCATION CAMPAIGN TARGETING THE ISSUE OF WEAPONS | dilbilgisi: tanımlık eksik (an education campaign); silah konusu |
+| NEARLY ALL REPUBLICANS VOTED AGAINST THE MEASURE | siyasi içerik |
+| GUNS WERE USED FOR ABOUT THREE OF EVERY FIVE KILLINGS | şiddet içeriği |
+| TAKE HERE AND NO SMALL PART SHOULD BE THEIR | anlamsız/bozuk cümle |
+| DEATH SHOULD BE VEILED THE GRAVE SHOULD HAVE ITS RESERVE | ölüm konusu; eski edebi dil |
+| TINA LIFE IN NEW USUAL | anlamsız/bozuk cümle |
+| THIS ELECTION IS GOING TO BE A TURNING POINT | siyasi içerik (seçim) |
+
+## Sınırlılıklar
+
+- **Referans aksan karışık:** Transkripsiyonlar kayıt bazında yazılmış ve tek bir aksana bağlı değil. Örneğin "FOR" 278 kayıtta `F AO` (r'siz, İngiliz), 40 kayıtta `F AO R` (Amerikan). R ve ER sayıları okuyan kişinin aksanına göre değişebilir. Bu fark Adım 4'te ele alınıyor.
+- **Her cümlenin tek kaynak kaydı var.** Cümlelerin fonemleri o kaydın transkripsiyonuna dayanıyor.
+- **Cümle uygunluğu elle değerlendirildi.** Bazı cümleler edebi bir dile sahip (ör. "YET WHY THERE SHOULD BE NOTHING IS HARD TO SAY"); başlangıç düzeyi için zorluğu pilot kayıtlarda gözlenmeli.
+- **Fonem çiftleri (ses geçişleri) kapsamı ölçülmedi;** seçim tek tek fonemlere göre yapıldı.

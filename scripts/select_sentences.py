@@ -52,12 +52,13 @@ def strip_stress(phone):
 
 def load_sentences(manifest, scores):
     """Group recordings by normalized sentence text."""
-    sentences = defaultdict(lambda: {"utt_ids": [], "splits": [], "totals": [], "transcriptions": []})
+    sentences = defaultdict(lambda: {"utt_ids": [], "splits": [], "speakers": [], "totals": [], "transcriptions": []})
     for r in manifest:
         s = sentences[normalize(r["text"])]
         words = scores[r["utt_id"]]["words"]
         s["utt_ids"].append(r["utt_id"])
         s["splits"].append(r["split"])
+        s["speakers"].append(f"{r['speaker_id']} ({r['gender']}, {r['age']}, {r['age_group']})")
         s["totals"].append(float(r["total"]))
         s["transcriptions"].append(" | ".join(" ".join(strip_stress(p) for p in w["phones"]) for w in words))
     for text, s in sentences.items():
@@ -68,6 +69,12 @@ def load_sentences(manifest, scores):
         s["phonemes"] = +s["phonemes"]  # drop zero counts
         s["variants"] = sorted(set(s["transcriptions"]))
     return sentences
+
+
+def pearson(a, b):
+    ma, mb = sum(a) / len(a), sum(b) / len(b)
+    cov = sum((x - ma) * (y - mb) for x, y in zip(a, b))
+    return cov / math.sqrt(sum((x - ma) ** 2 for x in a) * sum((y - mb) ** 2 for y in b))
 
 
 def select(candidates, n, k, selected, weight, tag="new_phonemes"):
@@ -182,47 +189,55 @@ def main():
     covered = sum(1 for p in PHONEMES if core_sents[p])
     weakest = min(PHONEMES, key=lambda p: (core_sents[p], p))
     multi = sum(1 for s in sentences.values() if len(s["variants"]) > 1)
+    corpus_pct = [r["corpus_pct"] for r in coverage_rows]
+    core_pct = [r["core_pct"] for r in coverage_rows]
+    over = sorted(coverage_rows, key=lambda r: r["core_pct"] / max(r["corpus_pct"], 1e-9), reverse=True)[:5]
+    under = sorted(coverage_rows, key=lambda r: r["core_pct"] / max(r["corpus_pct"], 1e-9))[:5]
+    vowel_share = lambda key: sum(r[key] for r in coverage_rows if r["type"] == "vowel")
+    role_of = lambda i: "temel" if i <= args.core else "yedek"
+
     lines = [
-        "# Okutulacak cümlelerin seçimi\n",
-        f"Kaynak: speechocean762, {len(manifest)} kayıt → {len(sentences)} tekrarsız cümle "
-        f"({len(manifest) - len(sentences)} tekrar çıkarıldı). Aday havuzu: {args.min_words}–{args.max_words} kelimelik, "
-        f"elle çıkarılan {len(excluded)} cümle hariç {len(candidates)} cümle.\n",
-        "Fonemler veri setinin kendi referans transkripsiyonlarından (ARPAbet) alındı; vurgu rakamları "
-        f"sayım için atıldı ve CMU sözlüğünün 39 fonemi kaldı. Aynı cümlenin iki kaydında farklı transkripsiyon "
-        f"olan {multi} cümlede bir fonem, yalnızca tüm transkripsiyonlarda geçtiği kadar sayıldı.\n",
-        f"Seçim açgözlü algoritmayla yapıldı: önce henüz kapsanmayan fonemler, ardından her fonemin en az "
-        f"{args.core_k} temel cümlede geçmesi, ardından seçimde az geçen ve veri setinde nadir olan fonemlere "
-        "öncelik veren azalan getirili bir puan; eşitlikte daha kısa cümle. "
-        f"Yedek cümleler aynı yöntemle hedef {args.core_k + 1} cümleye çıkarılarak seçildi.\n",
+        "# Adım 3 — Okutulacak cümlelerin seçimi\n",
+        "Teslim: cümle listesi, kaynak kayıt kimlikleri ve fonem kapsama tablosu. "
+        "Bu rapor `scripts/select_sentences.py` tarafından üretilir; aynı veriyle her çalıştırmada aynı sonucu verir.\n",
         "## Özet\n",
-        f"- Temel {len(core)} cümle 39 fonemin **{covered}**'unu kapsıyor.",
-        f"- En az geçen fonem: **{weakest}**, {core_sents[weakest]} temel cümlede.",
-        f"- Her fonem en az {min(core_sents[p] for p in PHONEMES)} temel cümlede, yedeklerle birlikte en az "
-        f"{min(all_sents[p] for p in PHONEMES)} cümlede geçiyor.",
-        f"- Temel set: {total_core} fonem, {sum(s['num_words'] for s in core)} kelime.",
-        f"- Pilot ({len(pilot)} temel cümle): 39 fonemin {len(pilot_sents)}'unu kapsıyor"
-        + (f"; eksik: {' '.join(sorted(set(PHONEMES) - set(pilot_sents)))}." if len(pilot_sents) < 39 else ".")
-        + "\n",
-        "## Cümleler\n",
-        "| # | Rol | Pilot | Cümle | Kelime | Yeni kapsanan fonemler | Kaynak kayıtlar | Ort. total puanı |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+        f"- speechocean762'deki {len(manifest)} kayıttan **{len(sentences)} tekrarsız cümle** çıkarıldı.",
+        f"- **{len(core)} temel + {len(backup)} yedek cümle** algoritmik olarak seçildi. Temel cümleler "
+        f"39 İngilizce fonemin **{covered}**'unu kapsıyor.",
+        f"- Her fonem en az **{min(core_sents[p] for p in PHONEMES)} temel cümlede** geçiyor (yedeklerle en az "
+        f"{min(all_sents[p] for p in PHONEMES)}). Bu nedenle tek bir temel cümle okunamazsa kapsam düşmez. "
+        f"En az geçen fonem: {weakest}.",
+        f"- Pilot kayıtlar (Adım 8: 5 kişi × 5 cümle) için seçilen **{len(pilot)} temel cümle** 39 fonemin "
+        f"{len(pilot_sents)}'unu kapsıyor"
+        + (f" (eksik: {' '.join(sorted(set(PHONEMES) - set(pilot_sents)))})." if len(pilot_sents) < 39 else ".")
+        + f" Temel set toplam {sum(s['num_words'] for s in core)} kelime ve {total_core} fonemden oluşuyor.\n",
+        "## 1. Cümle listesi\n",
+        "| # | Rol | Pilot sırası | Cümle | Kelime | Fonem | Farklı fonem |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
     ]
     for i, s in enumerate(selected, 1):
-        role = "temel" if i <= args.core else "yedek"
-        sources = ", ".join(f"{u} ({sp})" for u, sp in zip(s["utt_ids"], s["splits"]))
-        lines.append(f"| {i} | {role} | {pilot_rank.get(s['text'], '')} | {s['text']} | {s['num_words']} | "
-                     f"{' '.join(s['new_phonemes']) or '—'} | {sources} | {sum(s['totals']) / len(s['totals']):.1f} |")
+        lines.append(f"| {i} | {role_of(i)} | {pilot_rank.get(s['text'], '')} | {s['text']} | {s['num_words']} | "
+                     f"{sum(s['phonemes'].values())} | {len(s['phonemes'])} |")
     lines += [
-        "\n## Elle çıkarılan cümleler\n",
-        "Cümleler çalışma katılımcılarına okutulacağı için dilbilgisi bozuk ya da hassas içerikli (şiddet, ölüm, "
-        "siyaset) olanlar `resources/excluded_sentences.csv` listesiyle aday havuzundan çıkarıldı.\n",
-        "| Cümle | Gerekçe |",
-        "| --- | --- |",
-    ] + [f"| {t} | {r} |" for t, r in excluded.items()]
+        "\n<details><summary>Cümlelerin referans fonemleri (ARPAbet, vurgu rakamları atılmış; · kelime sınırı)</summary>\n",
+        "| # | Cümle | Fonemler |",
+        "| --- | --- | --- |",
+    ] + [f"| {i} | {s['text']} | {' // '.join(v.replace(' | ', ' · ') for v in s['variants'])} |" for i, s in enumerate(selected, 1)] + [
+        "\n</details>\n",
+        "## 2. Kaynak kayıt kimlikleri\n",
+        "Her cümlenin speechocean762'de hangi kayıtta geçtiği. Kaynak kayıtlar anadili Mandarin olan "
+        "konuşmacılara aittir; yalnızca cümlenin kaynağını ve referans transkripsiyonunu belirtir.\n",
+        "| # | Rol | Cümle | Kayıt kimliği (utt_id) | Bölüm | Konuşmacı (cinsiyet, yaş, grup) | Uzman total puanı |",
+        "| --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for i, s in enumerate(selected, 1):
+        for u, sp, spk, tot in zip(s["utt_ids"], s["splits"], s["speakers"], s["totals"]):
+            lines.append(f"| {i} | {role_of(i)} | {s['text']} | {u} | {sp} | {spk} | {tot:g} |")
     lines += [
-        "\n## Fonem kapsama tablosu\n",
-        "Sıralama: tüm veri setindeki sıklık. Oranlar fonem sayısına göre; \"cümle\" sütunları fonemin kaç cümlede "
-        "geçtiğini gösterir.\n",
+        "\n## 3. Fonem kapsama tablosu\n",
+        "Satırlar fonemin tüm veri setindeki sıklığına göre sıralıdır. \"Adet\" ve \"%\" fonem sayısını, "
+        "\"cümle\" sütunları fonemin kaç farklı cümlede geçtiğini gösterir. Son sütun, fonemin geçtiği cümlelerin "
+        "1. tablodaki numaralarıdır.\n",
         "| Fonem | Tür | Veri seti (adet) | Veri seti % | Temel (adet) | Temel % | Temel cümle | "
         "Temel+yedek cümle | Geçtiği cümleler (#) |",
         "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
@@ -232,10 +247,44 @@ def main():
         lines.append(f"| {r['phoneme']} | {kind} | {r['corpus_count']} | {r['corpus_pct']:.2f} | {r['core_count']} | "
                      f"{r['core_pct']:.2f} | {r['core_sentences']} | {r['core_backup_sentences']} | {r['sentences']} |")
     lines += [
-        "\n## Not: referans aksan\n",
-        "Referans transkripsiyonlar kayıt bazında yazılmış ve tek bir aksana bağlı değil. Örneğin \"FOR\" 278 "
-        "kayıtta `F AO` (r'siz, İngiliz), 40 kayıtta `F AO R` (Amerikan) olarak geçiyor. Bu nedenle özellikle "
-        "R ve ER fonemlerinin sayıları, cümleyi okuyacak kişinin aksanına göre değişebilir.",
+        "\n### Fonem dağılımı\n",
+        f"- Temel setteki fonem oranları veri setindeki oranlarla büyük ölçüde örtüşüyor "
+        f"(Pearson r = {pearson(corpus_pct, core_pct):.2f}).",
+        f"- Ünlü payı: veri setinde %{vowel_share('corpus_pct'):.1f}, temel sette %{vowel_share('core_pct'):.1f}.",
+        "- Veri setine göre en çok öne çıkarılan fonemler (nadir sesler, bilinçli olarak): "
+        + ", ".join(f"{r['phoneme']} (%{r['corpus_pct']:.2f} → %{r['core_pct']:.2f})" for r in over) + ".",
+        "- En çok geri kalan fonemler (sık sesler, yine de birçok cümlede var): "
+        + ", ".join(f"{r['phoneme']} (%{r['corpus_pct']:.2f} → %{r['core_pct']:.2f})" for r in under) + ".\n",
+        "## Yöntem\n",
+        f"1. **Tekrarların çıkarılması:** Cümleler büyük harfe çevrilip noktalama silinerek karşılaştırıldı; "
+        f"{len(manifest) - len(sentences)} tekrar çıkarıldı.",
+        "2. **Fonemlerin belirlenmesi:** Veri setinin kendi referans transkripsiyonları (`resource/scores.json`, "
+        "ARPAbet) kullanıldı; phonemizer/eSpeak kurulumu gerekmedi. Vurgu rakamları sayım için atıldı ve CMU "
+        f"sözlüğünün 39 fonemi kaldı. İki kaydında farklı transkripsiyon bulunan {multi} cümlede bir fonem, "
+        "yalnızca tüm transkripsiyonlarda geçtiği kadar sayıldı.",
+        f"3. **Aday havuzu:** {args.min_words}–{args.max_words} kelimelik cümleler; elle çıkarılan {len(excluded)} "
+        f"cümle hariç {len(candidates)} aday.",
+        "4. **Açgözlü seçim:** Her adımda şu sırayla en iyi cümle eklendi: (a) henüz kapsanmamış fonem sayısı, "
+        f"(b) her fonemin en az {args.core_k} temel cümlede geçmesine katkı, (c) seçimde az geçen ve veri setinde "
+        "nadir olan fonemlere öncelik veren azalan getirili puan, (d) eşitlikte daha kısa cümle.",
+        f"5. **Yedekler:** Aynı yöntemle, hedef fonem başına {args.core_k + 1} cümleye çıkarılarak seçildi.",
+        "6. **Pilot alt kümesi:** Temel cümleler arasından aynı yöntemle en çok fonemi kapsayan "
+        f"{len(pilot)} cümle.\n",
+        "## Elle çıkarılan cümleler\n",
+        "Cümleler Türk katılımcılara okutulacağı için (Adım 8), algoritmanın seçtiği cümleler tek tek okundu. "
+        "Dilbilgisi bozuk ya da hassas içerikli (şiddet, ölüm, siyaset) olanlar "
+        "`resources/excluded_sentences.csv` listesine eklenip seçim yeniden çalıştırıldı.\n",
+        "| Cümle | Gerekçe |",
+        "| --- | --- |",
+    ] + [f"| {t} | {r} |" for t, r in excluded.items()] + [
+        "\n## Sınırlılıklar\n",
+        "- **Referans aksan karışık:** Transkripsiyonlar kayıt bazında yazılmış ve tek bir aksana bağlı değil. "
+        "Örneğin \"FOR\" 278 kayıtta `F AO` (r'siz, İngiliz), 40 kayıtta `F AO R` (Amerikan). R ve ER sayıları "
+        "okuyan kişinin aksanına göre değişebilir. Bu fark Adım 4'te ele alınıyor.",
+        "- **Her cümlenin tek kaynak kaydı var.** Cümlelerin fonemleri o kaydın transkripsiyonuna dayanıyor.",
+        "- **Cümle uygunluğu elle değerlendirildi.** Bazı cümleler edebi bir dile sahip (ör. \"YET WHY THERE "
+        "SHOULD BE NOTHING IS HARD TO SAY\"); başlangıç düzeyi için zorluğu pilot kayıtlarda gözlenmeli.",
+        "- **Fonem çiftleri (ses geçişleri) kapsamı ölçülmedi;** seçim tek tek fonemlere göre yapıldı.",
     ]
     (out_dir / "sentence_selection.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"{len(sentences)} unique sentences, {len(candidates)} candidates; "
