@@ -60,14 +60,31 @@ Depodaki çıktılar 14 Ekim 2026'da NVIDIA GeForce RTX 4060 Laptop GPU üzerind
 | --- | --- | --- | --- | --- |
 | 1272-128104-0001 | 4,82 | 0,053 | NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER | n ɔːɹ ɹ ɪ z m ɪ s t ɚ k w ɪ l t ɚ z m æ n ɚ l ɛ s ɪ n t ɚ ɹ ɛ s t ɪ ŋ ð æ n h ɪ z m æ ɾ ɚ |
 
+## speechocean762 veri hazırlığı
+
+[speechocean762](https://www.openslr.org/101/) (OpenSLR SLR101, CC BY 4.0), anadili Mandarin olan 250 konuşmacının 5000 İngilizce cümlesini ve beş uzmanın telaffuz puanlarını içerir.
+
+```bash
+python scripts/prepare_speechocean762.py
+```
+
+Script arşivi (~520 MB) OpenSLR'dan `data/` klasörüne indirir, SHA-256 özetini doğrular ve açar. Ardından ses dosyalarını, konuşmacı bilgilerini, cümleleri ve uzman puanlarını kayıt kimliğiyle eşleştirir; eksik dosya, tekrar ve tutarlılık kontrollerini yapar. Orijinal eğitim/test ayrımı korunur. `data/` klasörü depoya eklenmez.
+
+| Dosya | İçerik |
+| --- | --- |
+| `speechocean762_manifest.csv` | Kayıt başına bir satır: bölüm, konuşmacı, cümle, ses bilgisi, cümle düzeyi puanlar |
+| `speechocean762_report.md` | Veri kontrol raporu |
+| `speechocean762_checks.json` | Kontrollerin ayrıntılı sonuçları |
+
 ## Proje yapısı
 
 ```
-scripts/run_phoneme_baseline.py   ana script
+scripts/run_phoneme_baseline.py   fonem tanıma temel testi
+scripts/prepare_speechocean762.py speechocean762 indirme, eşleştirme ve kontrol
 requirements.txt                  sabitlenmiş bağımlılıklar
 outputs/                          örnek çalıştırma çıktıları
 ```
 
 ## Lisans
 
-Bu depodaki kod [MIT lisansı](LICENSE) ile sunulur. Kullanılan model ([Apache 2.0](https://huggingface.co/facebook/wav2vec2-lv-60-espeak-cv-ft)) ve LibriSpeech kayıtları ([CC BY 4.0](https://www.openslr.org/12)) kendi lisanslarına tabidir.
+Bu depodaki kod [MIT lisansı](LICENSE) ile sunulur. Kullanılan model ([Apache 2.0](https://huggingface.co/facebook/wav2vec2-lv-60-espeak-cv-ft)) LibriSpeech kayıtları ([CC BY 4.0](https://www.openslr.org/12)) ve speechocean762 ([CC BY 4.0](https://www.openslr.org/101/)) kendi lisanslarına tabidir.
