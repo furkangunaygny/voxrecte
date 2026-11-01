@@ -108,6 +108,22 @@ speechocean762'deki cümleler tekrarsız hale getirilir; her cümlenin fonemleri
 | `sentence_selection.csv` | Seçilen cümleler, fonemleri ve kaynak kayıt kimlikleri |
 | `phoneme_coverage.csv` | Fonem başına veri setindeki ve seçimdeki sayılar |
 
+## Referans ve model fonemlerinin ortak biçimi
+
+```bash
+python scripts/transcribe_speechocean762.py   # tüm kayıtlar için model çıktısı (~3 dk, GPU) → data/predictions/
+python scripts/check_phoneme_map.py           # eşleştirme tablosu ve train kayıtlarında kontrol
+python -m unittest discover tests             # örnek kelime testleri
+```
+
+Veri setinin ARPAbet referansları ve modelin eSpeak IPA çıktısı, CMU sözlüğünün 39 fonemine (vurgusuz) ve modelin ürettiği üç ek sese (DX çırpma, Q gırtlak durması, IX indirgenmiş ünlü) çevrilir. Vurgu ve kabul edilebilir telaffuz farkları (ör. r'li/r'siz aksan, çırpma) [`scripts/phoneme_map.py`](scripts/phoneme_map.py) içinde açık kurallar olarak tanımlıdır. Kontrol yalnızca train kayıtlarında yapılır.
+
+| Dosya | İçerik |
+| --- | --- |
+| `phoneme_mapping.md` | Ortak gösterim, kurallar, sembol eşleştirme tablosu, kontrol sonuçları ve kelime örnekleri |
+| `phoneme_mapping.csv` | Model sembolü → ortak fonem tablosu |
+| `phoneme_mapping_check.json` | Kontrol sonuçları |
+
 ## Proje yapısı
 
 ```
@@ -116,6 +132,11 @@ scripts/prepare_speechocean762.py speechocean762 indirme, eşleştirme ve kontro
 scripts/extract_features.py       wav2vec 2.0 özellik çıkarma
 scripts/train_sentence_scores.py  cümle düzeyi puan tahmini
 scripts/select_sentences.py       okutulacak cümlelerin seçimi
+scripts/transcribe_speechocean762.py  model çıktısı (IPA) tüm kayıtlar için
+scripts/phoneme_map.py            ARPAbet / IPA → ortak fonem dönüşümü ve kabul edilebilir fark kuralları
+scripts/alignment.py              referans ve model fonem dizilerinin hizalanması
+scripts/check_phoneme_map.py      eşleştirmenin gerçek kayıtlarda kontrolü
+tests/                            örnek kelime testleri
 requirements.txt                  sabitlenmiş bağımlılıklar
 outputs/                          örnek çalıştırma çıktıları
 ```

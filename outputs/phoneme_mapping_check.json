@@ -1,0 +1,120 @@
+{
+  "split": "train",
+  "model_tokens": {
+    "distinct": 136,
+    "total": 47837,
+    "by_mapping": {
+      "tablo": 45268,
+      "bilinmiyor": 284,
+      "indirgenmiş": 2285
+    }
+  },
+  "unknown_tokens": {
+    "ts": 103,
+    "y5": 33,
+    "ts.": 29,
+    "ʐ": 27,
+    "ɲ": 10,
+    "yː": 7,
+    "q": 7,
+    "tsh": 7,
+    "y": 6,
+    "øː": 6,
+    "ʲ": 6,
+    "ɯ": 5,
+    "ɔɨ": 5,
+    "ʁ": 5,
+    "uɨ": 4,
+    "ħ": 3,
+    "ø": 3,
+    "œ": 3,
+    "ɨ": 2,
+    "ɐ̃ʊ̃": 2,
+    "yɜ": 2,
+    "ɬ": 2,
+    "ʎ": 1,
+    "ɖ": 1,
+    "ɵ": 1,
+    "ɨː": 1,
+    "ç": 1,
+    "əɪ": 1,
+    "ɭ": 1
+  },
+  "alignment": {
+    "all": {
+      "utterances": 2500,
+      "reference_phonemes": 47076,
+      "per_strict_pct": 36.67,
+      "per_with_rules_pct": 32.34,
+      "accepted_differences": 2055
+    },
+    "clean": {
+      "utterances": 222,
+      "reference_phonemes": 3478,
+      "per_strict_pct": 21.68,
+      "per_with_rules_pct": 17.42,
+      "accepted_differences": 148
+    }
+  },
+  "rule_use_clean": {
+    "R8": 60,
+    "R5": 43,
+    "R3": 24,
+    "R2": 14,
+    "R7": 4,
+    "R6": 3
+  },
+  "residual_clean": {
+    "substitution": {
+      "IH → IY": 23,
+      "AH → AA": 18,
+      "AH → AO": 16,
+      "UH → UW": 16,
+      "N → NG": 14,
+      "AH → AE": 14,
+      "DH → Z": 12,
+      "IH → EH": 10,
+      "IY → IH": 9,
+      "AE → EH": 8,
+      "S → Z": 8,
+      "T → D": 7,
+      "IY → EY": 7,
+      "UW → UH": 6,
+      "AH → IY": 5
+    },
+    "deletion": {
+      "T": 12,
+      "IH": 9,
+      "N": 8,
+      "L": 7,
+      "Y": 6,
+      "AH": 6,
+      "NG": 3,
+      "AE": 3,
+      "IY": 3,
+      "S": 2,
+      "W": 2,
+      "AO": 2,
+      "D": 2,
+      "UH": 1,
+      "ER": 1
+    },
+    "insertion": {
+      "AH": 43,
+      "ER": 12,
+      "Y": 8,
+      "N": 7,
+      "S": 5,
+      "EH": 5,
+      "Z": 5,
+      "T": 4,
+      "IY": 4,
+      "IX": 4,
+      "AO": 3,
+      "W": 3,
+      "IH": 3,
+      "AE": 3,
+      "HH": 3
+    }
+  }
+}
