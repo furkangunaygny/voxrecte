@@ -94,6 +94,20 @@ Model değiştirilmez; her katmanın zaman ortalaması alınır ve üzerine Ridg
 | `sentence_scores_split.json` | Doğrulama konuşmacıları |
 | `sentence_scores_test_predictions.csv` | Test kayıtları için tahminler |
 
+## Okutulacak cümlelerin seçimi
+
+```bash
+python scripts/select_sentences.py
+```
+
+speechocean762'deki cümleler tekrarsız hale getirilir; her cümlenin fonemleri veri setinin kendi ARPAbet transkripsiyonlarından (vurgu rakamları atılarak, 39 fonem) alınır. Açgözlü bir algoritma önce tüm fonemleri kapsayan, ardından her fonemin birden fazla cümlede geçmesini ve nadir fonemleri öne çıkaran 20 temel ve 5 yedek cümle seçer. Temel cümlelerden pilot kayıtlar için 5 cümlelik bir alt küme de işaretlenir. Cümleler katılımcılara okutulacağı için dilbilgisi bozuk veya hassas içerikli cümleler [`resources/excluded_sentences.csv`](resources/excluded_sentences.csv) listesiyle gerekçeleriyle birlikte havuzdan çıkarılır.
+
+| Dosya | İçerik |
+| --- | --- |
+| `sentence_selection.md` | Yöntem, cümle listesi ve fonem kapsama tablosu |
+| `sentence_selection.csv` | Seçilen cümleler, fonemleri ve kaynak kayıt kimlikleri |
+| `phoneme_coverage.csv` | Fonem başına veri setindeki ve seçimdeki sayılar |
+
 ## Proje yapısı
 
 ```
@@ -101,6 +115,7 @@ scripts/run_phoneme_baseline.py   fonem tanıma temel testi
 scripts/prepare_speechocean762.py speechocean762 indirme, eşleştirme ve kontrol
 scripts/extract_features.py       wav2vec 2.0 özellik çıkarma
 scripts/train_sentence_scores.py  cümle düzeyi puan tahmini
+scripts/select_sentences.py       okutulacak cümlelerin seçimi
 requirements.txt                  sabitlenmiş bağımlılıklar
 outputs/                          örnek çalıştırma çıktıları
 ```
