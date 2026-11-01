@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voxrecte"
+version = "0.1.0"
+description = "Phoneme-level English pronunciation analysis with a pretrained wav2vec 2.0 model"
+license = "MIT"
+requires-python = ">=3.13"
+
+[tool.setuptools]
+packages = ["voxrecte"]

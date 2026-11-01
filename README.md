@@ -23,7 +23,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-`requirements.txt`, torch ve torchaudio'nun CUDA 13.0 sürümlerini PyTorch paket deposundan kurar. GPU yoksa önce CPU sürümlerini kurun, ardından kalan paketleri yükleyin:
+`requirements.txt`, torch ve torchaudio'nun CUDA 13.0 sürümlerini PyTorch paket deposundan kurar ve projenin `voxrecte` paketini düzenlenebilir modda (`pip install -e .`) yükler; script'ler ve testler bu paketi kullanır. GPU yoksa önce CPU sürümlerini kurun, ardından kalan paketleri yükleyin:
 
 ```bash
 pip install torch==2.14.1 torchaudio==2.11.0 --index-url https://download.pytorch.org/whl/cpu
@@ -50,7 +50,6 @@ Sonuçlar `outputs/` klasörüne yazılır:
 
 | Dosya | İçerik |
 | --- | --- |
-| `phoneme_baseline.md` | Referans metin ve tahmin edilen fonemlerin tablosu |
 | `phoneme_baseline.json` | Kayıt bazında tahminler, ses ve çıkarım süreleri |
 | `environment.json` | Python, kütüphane, CUDA, GPU sürümleri; model ve veri seti revizyonları |
 
@@ -73,26 +72,7 @@ Script arşivi (~520 MB) OpenSLR'dan `data/` klasörüne indirir, SHA-256 özeti
 | Dosya | İçerik |
 | --- | --- |
 | `speechocean762_manifest.csv` | Kayıt başına bir satır: bölüm, konuşmacı, cümle, ses bilgisi, cümle düzeyi puanlar |
-| `speechocean762_report.md` | Veri kontrol raporu |
-| `speechocean762_checks.json` | Kontrollerin ayrıntılı sonuçları |
-
-## Cümle düzeyi puan tahmini (temel model)
-
-speechocean762 hazırlandıktan sonra:
-
-```bash
-python scripts/extract_features.py         # her kayıt için wav2vec 2.0 katman özellikleri (~3 dk, GPU)
-python scripts/train_sentence_scores.py    # Ridge ile uzman puanlarının tahmini
-```
-
-Model değiştirilmez; her katmanın zaman ortalaması alınır ve üzerine Ridge regresyonu eğitilir. Katman ve düzenleme katsayısı, eğitim kümesinden ayrılan 15 konuşmacılık doğrulama kümesinde seçilir; test kümesi yalnızca son ölçümde kullanılır. Özellikler `data/features/` klasörüne yazılır.
-
-| Dosya | İçerik |
-| --- | --- |
-| `sentence_scores_baseline.md` | Sonuç raporu (PCC, MSE, katmana göre doğrulama sonuçları) |
-| `sentence_scores_baseline.json` | Aynı sonuçlar, makine tarafından okunabilir |
-| `sentence_scores_split.json` | Doğrulama konuşmacıları |
-| `sentence_scores_test_predictions.csv` | Test kayıtları için tahminler |
+| `speechocean762_checks.json` | Bölüm özetleri ve eksik dosya, tekrar, tutarlılık kontrollerinin sonuçları |
 
 ## Okutulacak cümlelerin seçimi
 
@@ -104,8 +84,7 @@ speechocean762'deki cümleler tekrarsız hale getirilir; her cümlenin fonemleri
 
 | Dosya | İçerik |
 | --- | --- |
-| `sentence_selection.md` | Yöntem, cümle listesi ve fonem kapsama tablosu |
-| `sentence_selection.csv` | Seçilen cümleler, fonemleri ve kaynak kayıt kimlikleri |
+| `sentence_selection.csv` | Seçilen cümleler (temel/yedek, pilot sırası), fonemleri ve kaynak kayıt kimlikleri |
 | `phoneme_coverage.csv` | Fonem başına veri setindeki ve seçimdeki sayılar |
 
 ## Referans ve model fonemlerinin ortak biçimi
@@ -113,16 +92,15 @@ speechocean762'deki cümleler tekrarsız hale getirilir; her cümlenin fonemleri
 ```bash
 python scripts/transcribe_speechocean762.py   # tüm kayıtlar için model çıktısı (~3 dk, GPU) → data/predictions/
 python scripts/check_phoneme_map.py           # eşleştirme tablosu ve train kayıtlarında kontrol
-python -m unittest discover tests             # örnek kelime, hizalama ve karşılaştırma testleri
+python -m unittest discover tests             # birim testleri
 ```
 
-Veri setinin ARPAbet referansları ve modelin eSpeak IPA çıktısı, CMU sözlüğünün 39 fonemine (vurgusuz) ve modelin ürettiği üç ek sese (DX çırpma, Q gırtlak durması, IX indirgenmiş ünlü) çevrilir. Vurgu ve kabul edilebilir telaffuz farkları (ör. r'li/r'siz aksan, çırpma) [`scripts/phoneme_map.py`](scripts/phoneme_map.py) içinde açık kurallar olarak tanımlıdır. Kontrol yalnızca train kayıtlarında yapılır.
+Veri setinin ARPAbet referansları ve modelin eSpeak IPA çıktısı, CMU sözlüğünün 39 fonemine (vurgusuz) ve modelin ürettiği üç ek sese (DX çırpma, Q gırtlak durması, IX indirgenmiş ünlü) çevrilir. Dönüşüm tablosu [`voxrecte/phonemes.py`](voxrecte/phonemes.py), vurgu ve kabul edilebilir telaffuz farkları (ör. r'li/r'siz aksan, çırpma) [`voxrecte/rules.py`](voxrecte/rules.py) içinde açık kurallar olarak tanımlıdır. Kontrol yalnızca train kayıtlarında yapılır.
 
 | Dosya | İçerik |
 | --- | --- |
-| `phoneme_mapping.md` | Ortak gösterim, kurallar, sembol eşleştirme tablosu, kontrol sonuçları ve kelime örnekleri |
 | `phoneme_mapping.csv` | Model sembolü → ortak fonem tablosu |
-| `phoneme_mapping_check.json` | Kontrol sonuçları |
+| `phoneme_mapping_check.json` | Sembol eşleşme oranları, kurallarla/kurallarsız hata oranı, kural kullanımı, kalan farklar, kelime örnekleri |
 
 ## Telaffuz karşılaştırma
 
@@ -133,28 +111,69 @@ python scripts/compare_pronunciation.py kayit.wav "..." --json sonuc.json   # so
 
 Hedef cümle [`resources/lexicon.tsv`](resources/lexicon.tsv) sözlüğüyle fonemlere çevrilir. Sözlük speechocean762 referans transkripsiyonlarından `scripts/build_lexicon.py` ile üretilmiştir ve 2604 kelime içerir; seçilen cümlelerin tüm kelimeleri sözlükte vardır. Kayıt modelden geçirilir, iki fonem dizisi ortak biçime çevrilip hizalanır. Her kelime için hedef ve duyulan fonemler, değiştirme/silme/ekleme farkları ve kabul edilebilir farklar (kural numarasıyla) gösterilir. Kurala uymayan farklar kesin hata değil, **olası hata** olarak raporlanır.
 
-`scripts/compare_examples.py`, train kayıtlarından birkaç örnekte aracın çıktısını uzmanların işaretlediği fonemlerle yan yana `outputs/compare_examples.md` dosyasına yazar.
+## Değerlendirme (speechocean762 test kayıtları)
+
+```bash
+python scripts/evaluate_speechocean762.py     # transcribe_speechocean762.py çıktısını kullanır
+```
+
+Karşılaştırma 2500 test kaydında çalıştırılır ve beş uzmanın fonem etiketleriyle (`scores-detail.json`) karşılaştırılır. Uzman puanlarının ortalaması yerine her fonemdeki oylar kullanılır: işaretleme oranı "yanlış" diyen uzman sayısına göre verilir; precision/recall/F1 için "yanlış fonem" uzman çoğunluğuyla (≥3/5) tanımlanır ve alternatif tanımlar da raporlanır. Tek bir uzmanın diğer dört uzmana karşı başarısı insan referansı olarak verilir.
+
+| Dosya | İçerik |
+| --- | --- |
+| `evaluation_metrics.json` | Tüm ölçümler: oy gruplarına göre işaretleme oranı, precision/recall/F1, insan referansı, korelasyonlar, yaş grubu ve fonem kırılımları, hata örüntüleri |
+| `evaluation_utterances.csv` | Her test kaydı için uzman puanları, sistem sayımları ve model çıktısı |
+
+## Ek çalışma: cümle düzeyi puan tahmini (plan dışı)
+
+Proje planının adımlarından biri değildir; plan çıktılarından ayrı tutulmak için `extras/sentence_scores/` klasöründedir. speechocean762 hazırlandıktan sonra:
+
+```bash
+python extras/sentence_scores/extract_features.py        # her kayıt için wav2vec 2.0 katman özellikleri (~3 dk, GPU)
+python extras/sentence_scores/train_sentence_scores.py   # Ridge ile uzman puanlarının tahmini
+```
+
+Model değiştirilmez; her katmanın zaman ortalaması alınır ve üzerine Ridge regresyonu eğitilir. Katman ve düzenleme katsayısı, eğitim kümesinden ayrılan 15 konuşmacılık doğrulama kümesinde seçilir; test kümesi yalnızca son ölçümde kullanılır. Özellikler `data/features/` klasörüne, sonuçlar `extras/sentence_scores/outputs/` klasörüne yazılır.
+
+| Dosya | İçerik |
+| --- | --- |
+| `sentence_scores_baseline.json` | Seçilen ayarlar, PCC/MSE sonuçları, katmana göre doğrulama sonuçları |
+| `sentence_scores_split.json` | Doğrulama konuşmacıları |
+| `sentence_scores_test_predictions.csv` | Test kayıtları için tahminler |
 
 ## Proje yapısı
 
+Yeniden kullanılan kod `voxrecte/` paketinde, komut satırı araçları `scripts/` klasöründedir. Script'ler yalnızca girdileri okur, paketi çağırır ve çıktıları yazar.
+
 ```
-scripts/run_phoneme_baseline.py   fonem tanıma temel testi
-scripts/prepare_speechocean762.py speechocean762 indirme, eşleştirme ve kontrol
-scripts/extract_features.py       wav2vec 2.0 özellik çıkarma
-scripts/train_sentence_scores.py  cümle düzeyi puan tahmini
-scripts/select_sentences.py       okutulacak cümlelerin seçimi
-scripts/transcribe_speechocean762.py  model çıktısı (IPA) tüm kayıtlar için
-scripts/phoneme_map.py            ARPAbet / IPA → ortak fonem dönüşümü ve kabul edilebilir fark kuralları
-scripts/alignment.py              referans ve model fonem dizilerinin hizalanması
-scripts/check_phoneme_map.py      eşleştirmenin gerçek kayıtlarda kontrolü
-scripts/recognizer.py             ses okuma ve fonem modelinin çalıştırılması
-scripts/build_lexicon.py          speechocean762'den telaffuz sözlüğü
-scripts/compare_pronunciation.py  ses + hedef metin → olası fonem farkları
-scripts/compare_examples.py       karşılaştırma örnekleri (uzman işaretleriyle)
+voxrecte/                         Python paketi
+  paths.py                        dosya yolları
+  text.py                         cümle normalleştirme
+  speechocean.py                  speechocean762 okuma
+  phonemes.py                     fonem envanteri, model IPA → ortak fonem dönüşümü
+  rules.py                        referans fonemler, kabul edilebilir fark kuralları
+  alignment.py                    referans ve model fonem dizilerinin hizalanması
+  lexicon.py                      telaffuz sözlüğü
+  comparison.py                   kayıt ↔ hedef cümle karşılaştırması
+  evaluation.py                   uzman fonem etiketleriyle değerlendirme
+  recognizer.py                   ses okuma ve wav2vec 2.0 fonem modeli
+  selection.py                    fonem kapsamaya göre cümle seçimi
+  files.py                        CSV / JSON yazma
+scripts/                          komut satırı araçları
+  run_phoneme_baseline.py         Adım 1: fonem tanıma temel testi
+  prepare_speechocean762.py       Adım 2: indirme, eşleştirme ve kontrol
+  select_sentences.py             Adım 3: okutulacak cümlelerin seçimi
+  transcribe_speechocean762.py    Adım 4–6: tüm kayıtlar için model çıktısı
+  check_phoneme_map.py            Adım 4: eşleştirmenin gerçek kayıtlarda kontrolü
+  build_lexicon.py                Adım 5: speechocean762'den telaffuz sözlüğü
+  compare_pronunciation.py        Adım 5: ses + hedef metin → olası fonem farkları
+  evaluate_speechocean762.py      Adım 6: test kayıtlarında değerlendirme
+extras/sentence_scores/           plan dışı ek çalışma: cümle düzeyi puan tahmini (script'ler ve çıktıları)
+tests/                            birim testleri
 resources/                        telaffuz sözlüğü, elle çıkarılan cümleler
-tests/                            dönüşüm, hizalama ve karşılaştırma testleri
-requirements.txt                  sabitlenmiş bağımlılıklar
-outputs/                          örnek çalıştırma çıktıları
+outputs/                          üretilen veri çıktıları (CSV / JSON)
+reports/                          danışmana teslim edilen raporlar (PDF)
+data/                             veri seti, model çıktıları, özellikler (git'e eklenmez)
 ```
 
 ## Lisans

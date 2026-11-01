@@ -4,9 +4,9 @@
     "distinct": 136,
     "total": 47837,
     "by_mapping": {
-      "tablo": 45268,
-      "bilinmiyor": 284,
-      "indirgenmiş": 2285
+      "table": 45268,
+      "unknown": 284,
+      "reduced": 2285
     }
   },
   "unknown_tokens": {
@@ -116,5 +116,139 @@
       "R": 3,
       "HH": 3
     }
+  },
+  "rule_examples_clean": {
+    "R2": [
+      {
+        "word": "REPORTS",
+        "utt_id": "021680237",
+        "ref": "R IH0 P AO1 T S",
+        "hyp": "R IX P AO R T S"
+      },
+      {
+        "word": "REMINDER",
+        "utt_id": "022420138",
+        "ref": "R IH0 M AY1 N D AH0",
+        "hyp": "R IX M AY N D ER"
+      },
+      {
+        "word": "DEFEND",
+        "utt_id": "023800278",
+        "ref": "D IH0 F EH1 N D",
+        "hyp": "D IX F EH N D"
+      },
+      {
+        "word": "VERY",
+        "utt_id": "055510165",
+        "ref": "V EH1 R IY0",
+        "hyp": "V EH R IH"
+      }
+    ],
+    "R3": [
+      {
+        "word": "MOTOR",
+        "utt_id": "000060106",
+        "ref": "M OW1 T ER0",
+        "hyp": "M OW DX ER"
+      },
+      {
+        "word": "STARTING",
+        "utt_id": "000360210",
+        "ref": "S T AA1 R T IH0 NG",
+        "hyp": "S T AA R DX IH NG"
+      },
+      {
+        "word": "PARTY",
+        "utt_id": "013090181",
+        "ref": "P AA1 R T IY0",
+        "hyp": "P AA R DX IY"
+      },
+      {
+        "word": "NOTICE",
+        "utt_id": "020360019",
+        "ref": "N OW1 T IH0 S",
+        "hyp": "N OW DX IH S"
+      }
+    ],
+    "R5": [
+      {
+        "word": "FOUR",
+        "utt_id": "000540031",
+        "ref": "F AO0",
+        "hyp": "F AO R"
+      },
+      {
+        "word": "YOUR",
+        "utt_id": "001310076",
+        "ref": "Y AO0",
+        "hyp": "Y AO R"
+      },
+      {
+        "word": "MORE",
+        "utt_id": "005940019",
+        "ref": "M AO0",
+        "hyp": "M AO R"
+      },
+      {
+        "word": "FOR",
+        "utt_id": "007390120",
+        "ref": "F AO0",
+        "hyp": "F AO R"
+      }
+    ],
+    "R6": [
+      {
+        "word": "REMINDER",
+        "utt_id": "022420138",
+        "ref": "R IH0 M AY1 N D AH0",
+        "hyp": "R IX M AY N D ER"
+      },
+      {
+        "word": "SUCCESSFULLY",
+        "utt_id": "023800278",
+        "ref": "S AH0 K S EH1 S F AH0 L IY0",
+        "hyp": "S AH K S EH S F ER L IY"
+      },
+      {
+        "word": "FORGET",
+        "utt_id": "054140098",
+        "ref": "F AH0 G EH0 T",
+        "hyp": "F ER G EH T"
+      }
+    ],
+    "R7": [
+      {
+        "word": "FAMILY",
+        "utt_id": "054240053",
+        "ref": "F AE1 M AH0 L IY0",
+        "hyp": "F AE M L IY"
+      }
+    ],
+    "R8": [
+      {
+        "word": "TO",
+        "utt_id": "000060015",
+        "ref": "T UW0",
+        "hyp": "T AH"
+      },
+      {
+        "word": "DO",
+        "utt_id": "000260126",
+        "ref": "D UH0",
+        "hyp": "D UW"
+      },
+      {
+        "word": "WANT",
+        "utt_id": "000260126",
+        "ref": "W AA0 N T",
+        "hyp": "W AH N T"
+      },
+      {
+        "word": "NOT",
+        "utt_id": "000360210",
+        "ref": "N AH0 T",
+        "hyp": "N AA T"
+      }
+    ]
   }
 }
