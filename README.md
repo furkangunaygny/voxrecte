@@ -76,11 +76,31 @@ Script arşivi (~520 MB) OpenSLR'dan `data/` klasörüne indirir, SHA-256 özeti
 | `speechocean762_report.md` | Veri kontrol raporu |
 | `speechocean762_checks.json` | Kontrollerin ayrıntılı sonuçları |
 
+## Cümle düzeyi puan tahmini (temel model)
+
+speechocean762 hazırlandıktan sonra:
+
+```bash
+python scripts/extract_features.py         # her kayıt için wav2vec 2.0 katman özellikleri (~3 dk, GPU)
+python scripts/train_sentence_scores.py    # Ridge ile uzman puanlarının tahmini
+```
+
+Model değiştirilmez; her katmanın zaman ortalaması alınır ve üzerine Ridge regresyonu eğitilir. Katman ve düzenleme katsayısı, eğitim kümesinden ayrılan 15 konuşmacılık doğrulama kümesinde seçilir; test kümesi yalnızca son ölçümde kullanılır. Özellikler `data/features/` klasörüne yazılır.
+
+| Dosya | İçerik |
+| --- | --- |
+| `sentence_scores_baseline.md` | Sonuç raporu (PCC, MSE, katmana göre doğrulama sonuçları) |
+| `sentence_scores_baseline.json` | Aynı sonuçlar, makine tarafından okunabilir |
+| `sentence_scores_split.json` | Doğrulama konuşmacıları |
+| `sentence_scores_test_predictions.csv` | Test kayıtları için tahminler |
+
 ## Proje yapısı
 
 ```
 scripts/run_phoneme_baseline.py   fonem tanıma temel testi
 scripts/prepare_speechocean762.py speechocean762 indirme, eşleştirme ve kontrol
+scripts/extract_features.py       wav2vec 2.0 özellik çıkarma
+scripts/train_sentence_scores.py  cümle düzeyi puan tahmini
 requirements.txt                  sabitlenmiş bağımlılıklar
 outputs/                          örnek çalıştırma çıktıları
 ```
