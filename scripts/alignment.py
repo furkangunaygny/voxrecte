@@ -2,12 +2,14 @@
 
 Weighted Levenshtein alignment over common phonemes (see phoneme_map.py). Differences that
 match an acceptable-variant rule get a small cost and are tagged with the rule id, so they
-are aligned like matches but can still be reported.
+are aligned like matches but can still be reported. A vowel is never substituted for a
+consonant or the other way round (that costs more than a deletion plus an insertion).
 """
 
-from phoneme_map import deletion_rule, insertion_rule, substitution_rule
+from phoneme_map import UNKNOWN, VOWELS, deletion_rule, insertion_rule, substitution_rule
 
 ACCEPTED_COST = 0.1
+CROSS_CLASS_COST = 2.5
 
 
 def align(ref, hyp, use_rules=True):
@@ -22,7 +24,10 @@ def align(ref, hyp, use_rules=True):
         if r == hyp[j]:
             return 0.0, "match", None
         rule = substitution_rule(r, s, hyp[j], alts[0] if alts else ()) if use_rules else None
-        return (ACCEPTED_COST, "accepted", rule) if rule else (1.0, "substitution", None)
+        if rule:
+            return ACCEPTED_COST, "accepted", rule
+        cross = hyp[j] != UNKNOWN and (r in VOWELS) != (hyp[j] in VOWELS)
+        return (CROSS_CLASS_COST if cross else 1.0), "substitution", None
 
     def dele(i):
         prev_ref = ref[i - 1][0] if i > 0 else None

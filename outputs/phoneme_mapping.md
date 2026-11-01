@@ -6,8 +6,8 @@ Teslim: dönüşüm kodu (`scripts/phoneme_map.py`), sembol eşleştirme tablosu
 
 - Ortak gösterim: CMU sözlüğünün **39 ARPAbet fonemi** (vurgusuz) + modelin ürettiği ama ARPAbet'te karşılığı olmayan **3 ses** (DX, Q, IX).
 - Model train kayıtlarında 136 farklı sembol üretti; sembollerin %94.63'i doğrudan tablodan, %4.78'i indirgenerek eşlendi, %0.59'i İngilizce karşılığı olmadığı için `?` olarak işaretlendi.
-- Uzmanların tüm fonemleri doğru saydığı **222 temiz kayıtta** fonem hata oranı kurallar olmadan **%21.7**, kabul edilebilir fark kurallarıyla **%17.4**. Kalan fark, modelin kendi hataları ile henüz kurala bağlanmamış farklardan oluşur (aşağıda).
-- Tüm train kayıtlarında (2500): kurallar olmadan %36.7, kurallarla %32.3. Bu fark gerçek telaffuz hatalarını da içerir.
+- Uzmanların tüm fonemleri doğru saydığı **222 temiz kayıtta** fonem hata oranı kurallar olmadan **%22.2**, kabul edilebilir fark kurallarıyla **%17.8**. Kalan fark, modelin kendi hataları ile henüz kurala bağlanmamış farklardan oluşur (aşağıda).
+- Tüm train kayıtlarında (2500): kurallar olmadan %37.8, kurallarla %33.3. Bu fark gerçek telaffuz hatalarını da içerir.
 
 ## 1. Ortak gösterim ve vurgu
 
@@ -25,9 +25,9 @@ Bu farklar hata sayılmaz; karşılaştırma adımında ayrıca gösterilir.
 | R2 | Vurgusuz ünlü indirgenmesi: çok heceli bir kelimede vurgusuz (0) ünlü yerine AH, IH veya IX kabul edilir. | 14 |
 | R3 | Dil ucu çırpması: DX, referanstaki T veya D yerine kabul edilir. | 24 |
 | R4 | Gırtlak durması: Q, referanstaki T yerine kabul edilir. | 0 |
-| R5 | r'li/r'siz aksan: ünlüden sonra gelen R referansta olup tahminde olmayabilir ya da tersi. | 43 |
+| R5 | r'li/r'siz aksan: ünlüden sonra gelen R referansta olup tahminde olmayabilir ya da tersi. | 45 |
 | R6 | r'li/r'siz aksan: çok heceli bir kelimenin vurgusuz hecesinde ER ile AH birbirinin yerine kabul edilir ("mother": M AH DH AH / m ʌ ð ɚ). | 3 |
-| R7 | Hecelik ünsüz: L, N veya M'den önce vurgusuz AH olmayabilir ("little" → l ɪ ɾ əl / L IH T L). | 4 |
+| R7 | Hecelik ünsüz: L, N veya M'den önce vurgusuz AH olmayabilir ("little" → l ɪ ɾ əl / L IH T L). | 3 |
 | R8 | Referans varyantı: aynı kelime veri setinde başka bir referans yazımıyla da geçiyorsa, o yazımdaki ses kabul edilir (ör. NOT: N AH T ve N AA T). | 60 |
 
 R5 ve R6, speechocean762 referanslarının kayıt bazında İngiliz (r'siz) veya Amerikan (r'li) yazılmasından dolayı gerekli: ör. "FOR" 278 kayıtta `F AO`, 40 kayıtta `F AO R`; model ise Amerikan tarzında `f ɔːɹ` üretir.
@@ -191,16 +191,16 @@ Bu kayıtlarda uzmanlar her fonemi doğru saydığı için kalan farklar çoğun
 
 | Değiştirme (referans → model) | Adet | Silme (referansta var, modelde yok) | Adet | Ekleme (modelde fazla) | Adet |
 | --- | --- | --- | --- | --- | --- |
-| IH → IY | 23 | T | 12 | AH | 43 |
-| AH → AA | 18 | IH | 9 | ER | 12 |
-| AH → AO | 16 | N | 8 | Y | 8 |
-| UH → UW | 16 | L | 7 | N | 7 |
-| N → NG | 14 | Y | 6 | S | 5 |
-| AH → AE | 14 | AH | 6 | EH | 5 |
-| DH → Z | 12 | NG | 3 | Z | 5 |
-| IH → EH | 10 | AE | 3 | T | 4 |
-| IY → IH | 9 | IY | 3 | IY | 4 |
-| AE → EH | 8 | S | 2 | IX | 4 |
+| IH → IY | 26 | L | 20 | AH | 52 |
+| AH → AO | 19 | T | 13 | ER | 13 |
+| UH → UW | 19 | N | 11 | Y | 10 |
+| AH → AA | 19 | AH | 9 | N | 9 |
+| AH → AE | 15 | Y | 7 | S | 5 |
+| N → NG | 14 | IH | 7 | AO | 4 |
+| DH → Z | 13 | NG | 4 | Z | 4 |
+| IH → EH | 11 | D | 4 | IX | 4 |
+| AE → EH | 10 | W | 3 | EH | 3 |
+| IY → IH | 9 | IY | 3 | W | 3 |
 
 ## Sınırlılıklar
 

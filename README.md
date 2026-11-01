@@ -113,7 +113,7 @@ speechocean762'deki cümleler tekrarsız hale getirilir; her cümlenin fonemleri
 ```bash
 python scripts/transcribe_speechocean762.py   # tüm kayıtlar için model çıktısı (~3 dk, GPU) → data/predictions/
 python scripts/check_phoneme_map.py           # eşleştirme tablosu ve train kayıtlarında kontrol
-python -m unittest discover tests             # örnek kelime testleri
+python -m unittest discover tests             # örnek kelime, hizalama ve karşılaştırma testleri
 ```
 
 Veri setinin ARPAbet referansları ve modelin eSpeak IPA çıktısı, CMU sözlüğünün 39 fonemine (vurgusuz) ve modelin ürettiği üç ek sese (DX çırpma, Q gırtlak durması, IX indirgenmiş ünlü) çevrilir. Vurgu ve kabul edilebilir telaffuz farkları (ör. r'li/r'siz aksan, çırpma) [`scripts/phoneme_map.py`](scripts/phoneme_map.py) içinde açık kurallar olarak tanımlıdır. Kontrol yalnızca train kayıtlarında yapılır.
@@ -123,6 +123,17 @@ Veri setinin ARPAbet referansları ve modelin eSpeak IPA çıktısı, CMU sözl�
 | `phoneme_mapping.md` | Ortak gösterim, kurallar, sembol eşleştirme tablosu, kontrol sonuçları ve kelime örnekleri |
 | `phoneme_mapping.csv` | Model sembolü → ortak fonem tablosu |
 | `phoneme_mapping_check.json` | Kontrol sonuçları |
+
+## Telaffuz karşılaştırma
+
+```bash
+python scripts/compare_pronunciation.py kayit.wav "DO YOU HAVE ANY QUESTIONS FOR HER"
+python scripts/compare_pronunciation.py kayit.wav "..." --json sonuc.json   # sonucu JSON olarak da yaz
+```
+
+Hedef cümle [`resources/lexicon.tsv`](resources/lexicon.tsv) sözlüğüyle fonemlere çevrilir. Sözlük speechocean762 referans transkripsiyonlarından `scripts/build_lexicon.py` ile üretilmiştir ve 2604 kelime içerir; seçilen cümlelerin tüm kelimeleri sözlükte vardır. Kayıt modelden geçirilir, iki fonem dizisi ortak biçime çevrilip hizalanır. Her kelime için hedef ve duyulan fonemler, değiştirme/silme/ekleme farkları ve kabul edilebilir farklar (kural numarasıyla) gösterilir. Kurala uymayan farklar kesin hata değil, **olası hata** olarak raporlanır.
+
+`scripts/compare_examples.py`, train kayıtlarından birkaç örnekte aracın çıktısını uzmanların işaretlediği fonemlerle yan yana `outputs/compare_examples.md` dosyasına yazar.
 
 ## Proje yapısı
 
@@ -136,7 +147,12 @@ scripts/transcribe_speechocean762.py  model çıktısı (IPA) tüm kayıtlar iç
 scripts/phoneme_map.py            ARPAbet / IPA → ortak fonem dönüşümü ve kabul edilebilir fark kuralları
 scripts/alignment.py              referans ve model fonem dizilerinin hizalanması
 scripts/check_phoneme_map.py      eşleştirmenin gerçek kayıtlarda kontrolü
-tests/                            örnek kelime testleri
+scripts/recognizer.py             ses okuma ve fonem modelinin çalıştırılması
+scripts/build_lexicon.py          speechocean762'den telaffuz sözlüğü
+scripts/compare_pronunciation.py  ses + hedef metin → olası fonem farkları
+scripts/compare_examples.py       karşılaştırma örnekleri (uzman işaretleriyle)
+resources/                        telaffuz sözlüğü, elle çıkarılan cümleler
+tests/                            dönüşüm, hizalama ve karşılaştırma testleri
 requirements.txt                  sabitlenmiş bağımlılıklar
 outputs/                          örnek çalıştırma çıktıları
 ```
