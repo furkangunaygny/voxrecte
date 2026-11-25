@@ -22,6 +22,7 @@ phoneme; they are evaluated against the experts' [ ] marks separately.
 """
 
 import re
+import statistics
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
@@ -202,3 +203,44 @@ def detection_scores(phones: Sequence[PhoneOutcome], is_error: Callable[[PhoneOu
         else:
             fn, tn = fn + truth, tn + (not truth)
     return DetectionScores(tp, fp, fn, tn)
+
+
+# --- expert-based error definitions and the human reference ----------------------------------------
+
+N_EXPERTS = 5
+MAJORITY = 3
+
+# Expert-based definitions of "incorrect phoneme"; None = left out under that definition.
+DEFINITIONS: dict[str, tuple[str, Callable[[PhoneOutcome], bool | None]]] = {
+    "majority_wrong": (">= 3 of 5 experts scored 0 (main definition)",
+                       lambda p: p.wrong_votes >= MAJORITY),
+    "majority_wrong_vs_all_correct": (">= 3 of 5 experts scored 0, against phonemes all 5 scored 2 (others left out)",
+                                      lambda p: True if p.wrong_votes >= MAJORITY
+                                      else False if p.votes.count(CORRECT) == N_EXPERTS else None),
+    "any_wrong": (">= 1 of 5 experts scored 0", lambda p: p.wrong_votes >= 1),
+    "majority_not_correct": (">= 3 of 5 experts scored 0 or 1",
+                             lambda p: N_EXPERTS - p.votes.count(CORRECT) >= MAJORITY),
+}
+
+
+def is_majority_wrong(phone: PhoneOutcome) -> bool:
+    """Main error definition: at least 3 of the 5 experts scored the phoneme 0."""
+    return phone.wrong_votes >= MAJORITY
+
+
+def expert_vs_rest(phones: Sequence[PhoneOutcome],
+                   flagged: Callable[[PhoneOutcome], bool] = lambda phone: phone.flagged) -> dict:
+    """Each expert as a detector against the majority of the other four (>= 3 of 4 votes 0;
+    2-2 ties left out), and the system (`flagged`) against the same reference, averaged over the experts."""
+    expert_scores, system_scores = [], []
+    for expert in range(N_EXPERTS):
+        def others_say_wrong(p, expert=expert):
+            """Majority of the other four experts: True / False, None on a 2-2 tie."""
+            others = [v for i, v in enumerate(p.votes) if i != expert].count(WRONG)
+            return True if others >= 3 else False if others <= 1 else None
+        expert_scores.append(detection_scores(phones, others_say_wrong, lambda p, e=expert: p.votes[e] == WRONG))
+        system_scores.append(detection_scores(phones, others_say_wrong, flagged))
+    mean = lambda scores, attr: round(statistics.mean(getattr(s, attr) for s in scores), 4)
+    metrics = ("precision", "recall", "f1", "false_alarm_rate")
+    return {"single_expert": {m: mean(expert_scores, m) for m in metrics},
+            "system": {m: mean(system_scores, m) for m in metrics}}

@@ -1,0 +1,381 @@
+{
+  "target": ">= 3 of 5 experts scored the phoneme 0",
+  "features": {
+    "numeric": [
+      "accepted_mean",
+      "accepted_peak",
+      "own_peak",
+      "competitor_peak",
+      "margin",
+      "blank_mean",
+      "frames",
+      "window",
+      "prev_margin",
+      "next_margin",
+      "utt_margin_median",
+      "utt_flag_rate"
+    ],
+    "categorical": [
+      "phoneme",
+      "system",
+      "stress",
+      "word_position"
+    ]
+  },
+  "data": {
+    "train_phonemes": 47076,
+    "test_phonemes": 47369,
+    "train_errors": 2539,
+    "test_errors": 1950,
+    "recordings_not_aligned": 0
+  },
+  "cross_validation": {
+    "folds": 5,
+    "split_by": "speaker",
+    "models": {
+      "logistic_regression": {
+        "average_precision": 0.5271,
+        "roc_auc": 0.9404,
+        "thresholds": {
+          "best_f1": 0.20342242407816227,
+          "baseline_recall": 0.08285877251722963
+        }
+      },
+      "gradient_boosting": {
+        "average_precision": 0.5992,
+        "roc_auc": 0.949,
+        "thresholds": {
+          "best_f1": 0.2638302577921387,
+          "baseline_recall": 0.08210207497955854
+        }
+      }
+    },
+    "chosen": "gradient_boosting",
+    "step5_train_recall": 0.8196
+  },
+  "test": {
+    "average_precision": 0.5019,
+    "roc_auc": 0.9356,
+    "step5_comparison_average_precision": 0.1223,
+    "step5_comparison": {
+      "detection": {
+        "majority_wrong": {
+          "definition": ">= 3 of 5 experts scored 0 (main definition)",
+          "tp": 1637,
+          "fp": 10238,
+          "fn": 313,
+          "tn": 35181,
+          "precision": 0.1379,
+          "recall": 0.8395,
+          "f1": 0.2368,
+          "false_alarm_rate": 0.2254
+        },
+        "majority_wrong_vs_all_correct": {
+          "definition": ">= 3 of 5 experts scored 0, against phonemes all 5 scored 2 (others left out)",
+          "tp": 1637,
+          "fp": 7182,
+          "fn": 313,
+          "tn": 31313,
+          "precision": 0.1856,
+          "recall": 0.8395,
+          "f1": 0.304,
+          "false_alarm_rate": 0.1866
+        },
+        "any_wrong": {
+          "definition": ">= 1 of 5 experts scored 0",
+          "tp": 3446,
+          "fp": 8429,
+          "fn": 1805,
+          "tn": 33689,
+          "precision": 0.2902,
+          "recall": 0.6563,
+          "f1": 0.4024,
+          "false_alarm_rate": 0.2001
+        },
+        "majority_not_correct": {
+          "definition": ">= 3 of 5 experts scored 0 or 1",
+          "tp": 1869,
+          "fp": 10006,
+          "fn": 384,
+          "tn": 35110,
+          "precision": 0.1574,
+          "recall": 0.8296,
+          "f1": 0.2646,
+          "false_alarm_rate": 0.2218
+        }
+      },
+      "flag_rate_by_wrong_votes": {
+        "0": 20.0,
+        "1": 50.4,
+        "2": 68.4,
+        "3": 77.9,
+        "4": 83.9,
+        "5": 87.5
+      },
+      "expert_vs_rest": {
+        "precision": 0.1223,
+        "recall": 0.8518,
+        "f1": 0.2139,
+        "false_alarm_rate": 0.2205
+      },
+      "age_groups": {
+        "adult": {
+          "tp": 1114,
+          "fp": 5298,
+          "fn": 216,
+          "tn": 19124,
+          "precision": 0.1737,
+          "recall": 0.8376,
+          "f1": 0.2878,
+          "false_alarm_rate": 0.2169
+        },
+        "child": {
+          "tp": 523,
+          "fp": 4940,
+          "fn": 97,
+          "tn": 16057,
+          "precision": 0.0957,
+          "recall": 0.8435,
+          "f1": 0.172,
+          "false_alarm_rate": 0.2353
+        }
+      }
+    },
+    "classifier_best_f1_threshold": {
+      "threshold": 0.2638,
+      "detection": {
+        "majority_wrong": {
+          "definition": ">= 3 of 5 experts scored 0 (main definition)",
+          "tp": 1103,
+          "fp": 1440,
+          "fn": 847,
+          "tn": 43979,
+          "precision": 0.4337,
+          "recall": 0.5656,
+          "f1": 0.491,
+          "false_alarm_rate": 0.0317
+        },
+        "majority_wrong_vs_all_correct": {
+          "definition": ">= 3 of 5 experts scored 0, against phonemes all 5 scored 2 (others left out)",
+          "tp": 1103,
+          "fp": 790,
+          "fn": 847,
+          "tn": 37705,
+          "precision": 0.5827,
+          "recall": 0.5656,
+          "f1": 0.574,
+          "false_alarm_rate": 0.0205
+        },
+        "any_wrong": {
+          "definition": ">= 1 of 5 experts scored 0",
+          "tp": 1585,
+          "fp": 958,
+          "fn": 3666,
+          "tn": 41160,
+          "precision": 0.6233,
+          "recall": 0.3018,
+          "f1": 0.4067,
+          "false_alarm_rate": 0.0227
+        },
+        "majority_not_correct": {
+          "definition": ">= 3 of 5 experts scored 0 or 1",
+          "tp": 1179,
+          "fp": 1364,
+          "fn": 1074,
+          "tn": 43752,
+          "precision": 0.4636,
+          "recall": 0.5233,
+          "f1": 0.4917,
+          "false_alarm_rate": 0.0302
+        }
+      },
+      "flag_rate_by_wrong_votes": {
+        "0": 2.3,
+        "1": 11.0,
+        "2": 25.7,
+        "3": 39.6,
+        "4": 51.9,
+        "5": 68.7
+      },
+      "expert_vs_rest": {
+        "precision": 0.4249,
+        "recall": 0.6003,
+        "f1": 0.4975,
+        "false_alarm_rate": 0.0293
+      },
+      "age_groups": {
+        "adult": {
+          "tp": 773,
+          "fp": 783,
+          "fn": 557,
+          "tn": 23639,
+          "precision": 0.4968,
+          "recall": 0.5812,
+          "f1": 0.5357,
+          "false_alarm_rate": 0.0321
+        },
+        "child": {
+          "tp": 330,
+          "fp": 657,
+          "fn": 290,
+          "tn": 20340,
+          "precision": 0.3343,
+          "recall": 0.5323,
+          "f1": 0.4107,
+          "false_alarm_rate": 0.0313
+        }
+      }
+    },
+    "classifier_baseline_recall_threshold": {
+      "threshold": 0.0821,
+      "detection": {
+        "majority_wrong": {
+          "definition": ">= 3 of 5 experts scored 0 (main definition)",
+          "tp": 1539,
+          "fp": 4244,
+          "fn": 411,
+          "tn": 41175,
+          "precision": 0.2661,
+          "recall": 0.7892,
+          "f1": 0.398,
+          "false_alarm_rate": 0.0934
+        },
+        "majority_wrong_vs_all_correct": {
+          "definition": ">= 3 of 5 experts scored 0, against phonemes all 5 scored 2 (others left out)",
+          "tp": 1539,
+          "fp": 2633,
+          "fn": 411,
+          "tn": 35862,
+          "precision": 0.3689,
+          "recall": 0.7892,
+          "f1": 0.5028,
+          "false_alarm_rate": 0.0684
+        },
+        "any_wrong": {
+          "definition": ">= 1 of 5 experts scored 0",
+          "tp": 2647,
+          "fp": 3136,
+          "fn": 2604,
+          "tn": 38982,
+          "precision": 0.4577,
+          "recall": 0.5041,
+          "f1": 0.4798,
+          "false_alarm_rate": 0.0745
+        },
+        "majority_not_correct": {
+          "definition": ">= 3 of 5 experts scored 0 or 1",
+          "tp": 1693,
+          "fp": 4090,
+          "fn": 560,
+          "tn": 41026,
+          "precision": 0.2928,
+          "recall": 0.7514,
+          "f1": 0.4214,
+          "false_alarm_rate": 0.0907
+        }
+      },
+      "flag_rate_by_wrong_votes": {
+        "0": 7.4,
+        "1": 28.5,
+        "2": 49.2,
+        "3": 62.8,
+        "4": 77.8,
+        "5": 88.9
+      },
+      "expert_vs_rest": {
+        "precision": 0.2496,
+        "recall": 0.8223,
+        "f1": 0.3828,
+        "false_alarm_rate": 0.0892
+      },
+      "age_groups": {
+        "adult": {
+          "tp": 1064,
+          "fp": 2326,
+          "fn": 266,
+          "tn": 22096,
+          "precision": 0.3139,
+          "recall": 0.8,
+          "f1": 0.4508,
+          "false_alarm_rate": 0.0952
+        },
+        "child": {
+          "tp": 475,
+          "fp": 1918,
+          "fn": 145,
+          "tn": 19079,
+          "precision": 0.1985,
+          "recall": 0.7661,
+          "f1": 0.3153,
+          "false_alarm_rate": 0.0913
+        }
+      }
+    }
+  },
+  "feature_importance": [
+    {
+      "feature": "own_peak",
+      "ap_drop": 0.1554
+    },
+    {
+      "feature": "phoneme",
+      "ap_drop": 0.1228
+    },
+    {
+      "feature": "accepted_mean",
+      "ap_drop": 0.0674
+    },
+    {
+      "feature": "utt_margin_median",
+      "ap_drop": 0.0586
+    },
+    {
+      "feature": "window",
+      "ap_drop": 0.0544
+    },
+    {
+      "feature": "word_position",
+      "ap_drop": 0.0507
+    },
+    {
+      "feature": "margin",
+      "ap_drop": 0.0413
+    },
+    {
+      "feature": "utt_flag_rate",
+      "ap_drop": 0.0396
+    },
+    {
+      "feature": "next_margin",
+      "ap_drop": 0.0216
+    },
+    {
+      "feature": "prev_margin",
+      "ap_drop": 0.0186
+    },
+    {
+      "feature": "system",
+      "ap_drop": 0.0149
+    },
+    {
+      "feature": "stress",
+      "ap_drop": 0.0095
+    },
+    {
+      "feature": "accepted_peak",
+      "ap_drop": 0.0073
+    },
+    {
+      "feature": "competitor_peak",
+      "ap_drop": 0.0025
+    },
+    {
+      "feature": "blank_mean",
+      "ap_drop": 0.0018
+    },
+    {
+      "feature": "frames",
+      "ap_drop": 0.0
+    }
+  ]
+}

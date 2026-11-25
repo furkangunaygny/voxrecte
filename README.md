@@ -124,6 +124,29 @@ Karşılaştırma 2500 test kaydında çalıştırılır ve beş uzmanın fonem 
 | `evaluation_metrics.json` | Tüm ölçümler: oy gruplarına göre işaretleme oranı, precision/recall/F1, insan referansı, korelasyonlar, yaş grubu ve fonem kırılımları, hata örüntüleri |
 | `evaluation_utterances.csv` | Her test kaydı için uzman puanları, sistem sayımları ve model çıktısı |
 
+## Fonem hata sınıflandırıcısı (GOP + uzman etiketleri)
+
+```bash
+python scripts/extract_class_scores.py        # her kayıt için kare düzeyinde fonem olasılıkları (~3 dk, GPU) → data/posteriors/
+python scripts/train_error_classifier.py      # özellikler, çapraz doğrulama, eğitim ve test
+```
+
+Karşılaştırma aracı yalnızca modelin en olası sembolüne bakar ve bu nedenle çok yanlış alarm üretir. Bu adımda modelin kare düzeyindeki olasılıkları kullanılır. Hedef fonemler kayda CTC zorla hizalamasıyla yerleştirilir; kabul kurallarındaki varyantlar da hedef sayılır. Her fonem için şu özellikler çıkarılır (GOP, *goodness of pronunciation*) ([`voxrecte/gop.py`](voxrecte/gop.py)):
+
+- beklenen sesin olasılığı,
+- en güçlü rakip sesin olasılığı,
+- süreler.
+
+Bunlara fonem, vurgu, kelimedeki konum ve karşılaştırma aracının kararı eklenir. Sınıflandırıcı uzman çoğunluğunun (≥3/5) "yanlış" etiketini tahmin eder:
+
+- Model ve eşik, eğitim kümesinde konuşmacıya göre ayrılmış 5 katlı çapraz doğrulamayla seçilir.
+- Test kümesi yalnızca son ölçümde kullanılır.
+- wav2vec 2.0 modelinin kendisi değiştirilmez.
+
+| Dosya | İçerik |
+| --- | --- |
+| `error_classifier_metrics.json` | Çapraz doğrulama sonuçları, eşikler, test ölçümleri (karşılaştırma aracıyla yan yana), özellik önemleri |
+
 ## Ek çalışma: cümle düzeyi puan tahmini (plan dışı)
 
 Proje planının adımlarından biri değildir; plan çıktılarından ayrı tutulmak için `extras/sentence_scores/` klasöründedir. speechocean762 hazırlandıktan sonra:
@@ -156,6 +179,7 @@ voxrecte/                         Python paketi
   lexicon.py                      telaffuz sözlüğü
   comparison.py                   kayıt ↔ hedef cümle karşılaştırması
   evaluation.py                   uzman fonem etiketleriyle değerlendirme
+  gop.py                          kare düzeyi fonem olasılıkları, zorla hizalama, GOP özellikleri
   recognizer.py                   ses okuma ve wav2vec 2.0 fonem modeli
   selection.py                    fonem kapsamaya göre cümle seçimi
   files.py                        CSV / JSON yazma
@@ -168,12 +192,14 @@ scripts/                          komut satırı araçları
   build_lexicon.py                Adım 5: speechocean762'den telaffuz sözlüğü
   compare_pronunciation.py        Adım 5: ses + hedef metin → olası fonem farkları
   evaluate_speechocean762.py      Adım 6: test kayıtlarında değerlendirme
+  extract_class_scores.py         hata sınıflandırıcısı: kare düzeyi fonem olasılıkları
+  train_error_classifier.py       hata sınıflandırıcısı: eğitim ve test
 extras/sentence_scores/           plan dışı ek çalışma: cümle düzeyi puan tahmini (script'ler ve çıktıları)
 tests/                            birim testleri
 resources/                        telaffuz sözlüğü, elle çıkarılan cümleler
 outputs/                          üretilen veri çıktıları (CSV / JSON)
 reports/                          danışmana teslim edilen raporlar (PDF)
-data/                             veri seti, model çıktıları, özellikler (git'e eklenmez)
+data/                             veri seti, model çıktıları, özellikler, eğitilmiş modeller (git'e eklenmez)
 ```
 
 ## Lisans

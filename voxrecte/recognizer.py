@@ -63,6 +63,23 @@ class PhonemeRecognizer:
             logits = self.model(self._inputs(audio)).logits
         return self.tokenizer.decode(torch.argmax(logits, dim=-1)[0].cpu())
 
+    @property
+    def tokens(self) -> list[str]:
+        """Model output symbols in logit order."""
+        return self.tokenizer.convert_ids_to_tokens(list(range(self.model.config.vocab_size)))
+
+    @property
+    def special_ids(self) -> dict[str, int]:
+        """Ids of the CTC blank (pad) and the other non-phoneme symbols."""
+        t = self.tokenizer
+        return {"blank": t.pad_token_id, "unk": t.unk_token_id, "bos": t.bos_token_id, "eos": t.eos_token_id}
+
+    def log_posteriors(self, audio: np.ndarray) -> np.ndarray:
+        """Frame-level log posteriors over the output symbols, shape (frames, vocab_size); 50 frames/s."""
+        with torch.inference_mode():
+            logits = self.model(self._inputs(audio)).logits[0]
+        return torch.log_softmax(logits.float(), dim=-1).cpu().numpy()
+
     def layer_means(self, audio: np.ndarray) -> np.ndarray:
         """Time-averaged hidden state of every layer, shape (num_layers, hidden_size)."""
         with torch.inference_mode():

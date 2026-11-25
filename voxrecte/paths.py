@@ -27,6 +27,16 @@ def predictions_path(data_dir: Path = DATA_DIR) -> Path:
     return data_dir / "predictions" / "speechocean762_ipa.csv"
 
 
+def class_scores_path(data_dir: Path = DATA_DIR) -> Path:
+    """Frame-level phoneme class scores (voxrecte/gop.py) for every speechocean762 recording."""
+    return data_dir / "posteriors" / "speechocean762_class_scores.npz"
+
+
+def models_dir(data_dir: Path = DATA_DIR) -> Path:
+    """Trained classifiers."""
+    return data_dir / "models"
+
+
 def features_dir(data_dir: Path = DATA_DIR) -> Path:
     """Utterance-level wav2vec 2.0 features."""
     return data_dir / "features"
